@@ -1,18 +1,16 @@
 package com.mtrilogic.abstracts;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
 import com.mtrilogic.adapters.ExpandableAdapter;
+import com.mtrilogic.interfaces.Bindable;
 import com.mtrilogic.interfaces.ExpandableItemListener;
 import com.mtrilogic.views.ExpandableView;
 
 @SuppressWarnings({"unused","WeakerAccess"})
-public abstract class ExpandableChild <M extends Modelable> {
+public abstract class ExpandableChild <M extends Modelable> implements Bindable<M> {
     protected final ExpandableItemListener listener;
     protected final View itemView;
     protected int groupPosition;
@@ -20,17 +18,12 @@ public abstract class ExpandableChild <M extends Modelable> {
     protected boolean lastChild;
     protected M model;
 
-// ++++++++++++++++| PUBLIC ABSTRACT METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    protected abstract M getModel(Modelable modelable);
-
-    protected abstract void onBindHolder();
-
 // ++++++++++++++++| PROTECTED CONSTRUCTORS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public ExpandableChild(@NonNull Context context, int resource, @NonNull ViewGroup parent, @NonNull ExpandableItemListener listener){
-        itemView = LayoutInflater.from(context).inflate(resource, parent, false);
+    public ExpandableChild(@NonNull View itemView, @NonNull ExpandableItemListener listener){
+        this.itemView = itemView;
         this.listener = listener;
+        onBindItemView();
     }
 
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -39,26 +32,24 @@ public abstract class ExpandableChild <M extends Modelable> {
         return itemView;
     }
 
-    public void bindHolder(Modelable modelable, int groupPosition, int childPosition, boolean lastChild){
-        model = getModel(modelable);
+    public void bindModel(@NonNull Modelable modelable, int groupPosition, int childPosition, boolean lastChild){
+        model = getModelFromModelable(modelable);
         this.groupPosition = groupPosition;
         this.childPosition = childPosition;
         this.lastChild = lastChild;
-        onBindHolder();
+        onBindModel();
     }
 
 // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     protected void autoDelete(){
         ExpandableAdapter adapter = listener.getExpandableAdapter();
-        if (adapter != null){
-            if (adapter.deleteChildModelable(adapter.getGroupModelable(groupPosition), model)){
-                adapter.notifyDataSetChanged();
-                if (adapter.getChildrenCount(groupPosition) == 0){
-                    ExpandableView lvwItems = listener.getExpandableView();
-                    if (lvwItems != null && lvwItems.isGroupExpanded(groupPosition)) {
-                        lvwItems.collapseGroup(groupPosition);
-                    }
+        if (adapter.deleteChildModelable(adapter.getGroupModelable(groupPosition), model)){
+            adapter.notifyDataSetChanged();
+            if (adapter.getChildrenCount(groupPosition) == 0){
+                ExpandableView lvwItems = listener.getExpandableView();
+                if (lvwItems.isGroupExpanded(groupPosition)) {
+                    lvwItems.collapseGroup(groupPosition);
                 }
             }
         }

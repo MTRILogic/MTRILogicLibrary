@@ -1,51 +1,42 @@
 package com.mtrilogic.abstracts;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.view.View;
 
 import com.mtrilogic.adapters.RecyclableAdapter;
+import com.mtrilogic.interfaces.Bindable;
 import com.mtrilogic.interfaces.RecyclableItemListener;
 
 @SuppressWarnings({"unused","WeakerAccess"})
-public abstract class Recyclable<M extends Modelable> extends RecyclerView.ViewHolder {
+public abstract class Recyclable<M extends Modelable> extends RecyclerView.ViewHolder implements Bindable<M> {
     protected final RecyclableItemListener listener;
     protected int position;
     protected M model;
 
-// ++++++++++++++++| PROTECTED ABSTRACT METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    protected abstract M getModel(Modelable modelable);
-
-    protected abstract void onBindHolder();
-
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public Recyclable(@NonNull Context context, int resource, @NonNull ViewGroup parent, @NonNull RecyclableItemListener listener){
-        super(LayoutInflater.from(context).inflate(resource, parent, false));
+    public Recyclable(@NonNull View itemView, @NonNull RecyclableItemListener listener){
+        super(itemView);
         this.listener = listener;
+        onBindItemView();
     }
 
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public void bindHolder(Modelable modelable, int position){
-        model = getModel(modelable);
+    public void bindModel(@NonNull Modelable modelable, int position){
+        model = getModelFromModelable(modelable);
         this.position = position;
-        onBindHolder();
+        onBindModel();
     }
 
 // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     protected void autoDelete(){
         RecyclableAdapter adapter = listener.getRecyclableAdapter();
-        if (adapter != null){
-            if (adapter.removeModelable(model)){
-                adapter.notifyDataSetChanged();
-            }
+        if (adapter.removeModelable(model)){
+            adapter.notifyDataSetChanged();
         }
     }
 }

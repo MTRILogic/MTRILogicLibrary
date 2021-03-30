@@ -1,11 +1,14 @@
 package com.mtrilogic.interfaces;
 
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.Inflatable;
 import com.mtrilogic.abstracts.Modelable;
 
 @SuppressWarnings("unused")
 public interface InflatableListener extends OnMakeToastListener{
-    Inflatable<? extends Modelable> getInflatable(int viewType, ViewGroup parent);
+    Inflatable<? extends Modelable> getInflatable(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent);
 }

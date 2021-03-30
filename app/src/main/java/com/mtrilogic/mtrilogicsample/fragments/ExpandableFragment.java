@@ -19,6 +19,8 @@ import com.mtrilogic.classes.Mapable;
 import com.mtrilogic.interfaces.ExpandableItemListener;
 import com.mtrilogic.interfaces.ExpandableListener;
 import com.mtrilogic.mtrilogicsample.databinding.FragmentExpandableBinding;
+import com.mtrilogic.mtrilogicsample.databinding.ItemChildDataBinding;
+import com.mtrilogic.mtrilogicsample.databinding.ItemGroupBinding;
 import com.mtrilogic.mtrilogicsample.items.expandables.childs.ChildDataItem;
 import com.mtrilogic.mtrilogicsample.items.expandables.groups.GroupDataItem;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
@@ -41,7 +43,7 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
 
         Listable<Modelable> groupListable = page.getGroupListable();
         Mapable<Modelable> childMapable = page.getChildMapable();
-        adapter = new ExpandableAdapter(this, groupListable, childMapable, GroupType.COUNT, ChildType.COUNT);
+        adapter = new ExpandableAdapter(inflater, this, groupListable, childMapable, GroupType.COUNT, ChildType.COUNT);
         binding.lvwItems.setAdapter(adapter);
 
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
@@ -80,27 +82,29 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
     }
 
     @Override
-    public ExpandableGroup<? extends Modelable> getExpandableGroup(int viewType, ViewGroup parent){
+    public ExpandableGroup<? extends Modelable> getExpandableGroup(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent){
         if (viewType == GroupType.GROUP) {
-            return new GroupDataItem(getContext(), R.layout.item_group, parent, this);
+            return new GroupDataItem(ItemGroupBinding.inflate(inflater, parent, false), this);
         }
         return null;
     }
 
     @Override
-    public ExpandableChild<? extends Modelable> getExpandableChild(int viewType, ViewGroup parent){
+    public ExpandableChild<? extends Modelable> getExpandableChild(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent){
         Context context = getContext();
         if (viewType == ChildType.DATA) {
-            return new ChildDataItem(context, R.layout.item_child_data, parent, this);
+            return new ChildDataItem(ItemChildDataBinding.inflate(inflater, parent, false), this);
         }
         return null;
     }
 
+    @NonNull
     @Override
     public ExpandableAdapter getExpandableAdapter(){
         return adapter;
     }
 
+    @NonNull
     @Override
     public ExpandableView getExpandableView() {
         return binding.lvwItems;

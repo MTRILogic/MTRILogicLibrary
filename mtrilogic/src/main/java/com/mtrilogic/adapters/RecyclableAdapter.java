@@ -2,6 +2,8 @@ package com.mtrilogic.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.mtrilogic.abstracts.Modelable;
@@ -15,15 +17,13 @@ import java.util.ArrayList;
 public class RecyclableAdapter extends RecyclerView.Adapter<Recyclable<? extends Modelable>>{
     private static final String TAG = "RecyclableAdapter";
     private final RecyclableListener listener;
+    private final LayoutInflater inflater;
     private ArrayList<Modelable> modelableList;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public RecyclableAdapter(RecyclableListener listener){
-        this(listener, new ArrayList<>());
-    }
-
-    public RecyclableAdapter(RecyclableListener listener, ArrayList<Modelable> modelableList){
+    public RecyclableAdapter(@NonNull LayoutInflater inflater, @NonNull RecyclableListener listener, @NonNull ArrayList<Modelable> modelableList){
+        this.inflater = inflater;
         this.listener = listener;
         this.modelableList = modelableList;
         setHasStableIds(true);
@@ -94,13 +94,13 @@ public class RecyclableAdapter extends RecyclerView.Adapter<Recyclable<? extends
     @NonNull
     @Override
     public Recyclable<? extends Modelable> onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
-        return listener.getRecyclable(viewType, parent);
+        return listener.getRecyclable(viewType, inflater, parent);
     }
 
     @Override
     public void onBindViewHolder(@NonNull Recyclable holder, int position){
         Modelable modelable = getItem(position);
-        holder.bindHolder(modelable, position);
+        holder.bindModel(modelable, position);
     }
 
     @Override

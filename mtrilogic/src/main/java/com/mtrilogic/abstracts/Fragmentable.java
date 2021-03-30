@@ -108,10 +108,8 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
     protected void autoDelete(){
         if (listener != null) {
             FragmentableAdapter adapter = listener.getFragmentableAdapter();
-            if (adapter != null) {
-                if (adapter.removePaginable(page)) {
-                    adapter.notifyDataSetChanged();
-                }
+            if (adapter.removePaginable(page)) {
+                adapter.notifyDataSetChanged();
             }
         }
     }

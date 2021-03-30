@@ -1,5 +1,6 @@
 package com.mtrilogic.adapters;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
@@ -23,12 +24,14 @@ public class ExpandableAdapter extends BaseExpandableListAdapter{
     private final ArrayList<Listable<Modelable>> lastListableList;
     private Listable<Modelable> groupListable, lastListable;
     private Mapable<Modelable> childMapable;
+    private final LayoutInflater inflater;
     private int groupTypeCount, childTypeCount;
     private boolean stableIds;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public ExpandableAdapter(ExpandableListener listener, Listable<Modelable> groupListable, Mapable<Modelable> childMapable, int groupTypeCount, int childTypeCount){
+    public ExpandableAdapter(@NonNull LayoutInflater inflater, @NonNull ExpandableListener listener, @NonNull Listable<Modelable> groupListable, @NonNull Mapable<Modelable> childMapable, int groupTypeCount, int childTypeCount){
+        this.inflater = inflater;
         this.listener = listener;
         this.groupListable = groupListable;
         this.childMapable = childMapable;
@@ -382,11 +385,11 @@ public class ExpandableAdapter extends BaseExpandableListAdapter{
             expandableGroup = (ExpandableGroup<? extends Modelable>)view.getTag();
         }else {
             int viewType = groupModelable.getViewType();
-            expandableGroup = listener.getExpandableGroup(viewType, parent);
+            expandableGroup = listener.getExpandableGroup(viewType, inflater, parent);
             view = expandableGroup.getItemView();
             view.setTag(expandableGroup);
         }
-        expandableGroup.bindHolder(groupModelable, groupPosition, expanded);
+        expandableGroup.bindModel(groupModelable, groupPosition, expanded);
         return view;
     }
 
@@ -398,11 +401,11 @@ public class ExpandableAdapter extends BaseExpandableListAdapter{
             expandableChild = (ExpandableChild<? extends Modelable>)view.getTag();
         }else {
             int viewType = childModelable.getViewType();
-            expandableChild = listener.getExpandableChild(viewType, parent);
+            expandableChild = listener.getExpandableChild(viewType, inflater, parent);
             view = expandableChild.getItemView();
             view.setTag(expandableChild);
         }
-        expandableChild.bindHolder(childModelable, groupPosition, childPosition, lastChild);
+        expandableChild.bindModel(childModelable, groupPosition, childPosition, lastChild);
         return view;
     }
 

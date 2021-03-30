@@ -19,6 +19,7 @@ import com.mtrilogic.interfaces.RecyclableItemListener;
 import com.mtrilogic.interfaces.RecyclableListener;
 import com.mtrilogic.mtrilogicsample.R;
 import com.mtrilogic.mtrilogicsample.databinding.FragmentRecyclableBinding;
+import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
 import com.mtrilogic.mtrilogicsample.items.recyclables.RecyclableDataItem;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 import com.mtrilogic.mtrilogicsample.pages.RecyclablePage;
@@ -38,7 +39,7 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
         binding = FragmentRecyclableBinding.inflate(inflater, container, false);
 
         ArrayList<Modelable> modelables = page.getModelableList();
-        adapter = new RecyclableAdapter(this, modelables);
+        adapter = new RecyclableAdapter(inflater, this, modelables);
         binding.lvwItems.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.lvwItems.setAdapter(adapter);
 
@@ -62,19 +63,21 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
     }
 
     @Override
-    public Recyclable<? extends Modelable> getRecyclable(int viewType, ViewGroup parent){
+    public Recyclable<? extends Modelable> getRecyclable(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent){
         Context context = getContext();
         if (viewType == ChildType.DATA) {
-            return new RecyclableDataItem(context, R.layout.item_data, parent, this);
+            return new RecyclableDataItem(ItemDataBinding.inflate(inflater, parent, false), this);
         }
         return null;
     }
 
+    @NonNull
     @Override
     public RecyclableAdapter getRecyclableAdapter(){
         return adapter;
     }
 
+    @NonNull
     @Override
     public RecyclerView getRecyclerView() {
         return binding.lvwItems;

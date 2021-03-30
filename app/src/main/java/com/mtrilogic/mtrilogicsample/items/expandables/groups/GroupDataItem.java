@@ -1,8 +1,9 @@
 package com.mtrilogic.mtrilogicsample.items.expandables.groups;
 
 import android.content.Context;
-import android.view.ViewGroup;
 import android.widget.CompoundButton;
+
+import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.ExpandableGroup;
 import com.mtrilogic.abstracts.Modelable;
@@ -15,12 +16,18 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"unused","FieldCanBeLocal"})
 public class GroupDataItem extends ExpandableGroup<DataModel> implements CompoundButton.OnCheckedChangeListener {
-    private final ItemGroupBinding binding;
+    private ItemGroupBinding binding;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public GroupDataItem(Context context, int resource, ViewGroup parent, ExpandableItemListener listener){
-        super(context, resource, parent, listener);
+    public GroupDataItem(@NonNull ItemGroupBinding binding, @NonNull ExpandableItemListener listener){
+        super(binding.getRoot(), listener);
+    }
+
+// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    @Override
+    public void onBindItemView() {
         binding = ItemGroupBinding.bind(itemView);
         binding.chkItem.setOnCheckedChangeListener(this);
         binding.chkItem.setFocusable(false);
@@ -30,7 +37,19 @@ public class GroupDataItem extends ExpandableGroup<DataModel> implements Compoun
         binding.btnDelete.setFocusable(false);
     }
 
-// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    @NonNull
+    @Override
+    public DataModel getModelFromModelable(@NonNull Modelable modelable) {
+        return (DataModel) modelable;
+    }
+
+    @Override
+    public void onBindModel(){
+        Context context = itemView.getContext();
+        binding.chkItem.setChecked(model.isChecked());
+        binding.lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
+        binding.lblContent.setText(context.getString(R.string.content_item, groupPosition));
+    }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -43,21 +62,6 @@ public class GroupDataItem extends ExpandableGroup<DataModel> implements Compoun
             }
             listener.getExpandableAdapter().notifyDataSetChanged();
         }
-    }
-
-    // ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    @Override
-    protected DataModel getModel(Modelable modelable) {
-        return (DataModel) modelable;
-    }
-
-    @Override
-    protected void onBindHolder(){
-        Context context = itemView.getContext();
-        binding.chkItem.setChecked(model.isChecked());
-        binding.lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
-        binding.lblContent.setText(context.getString(R.string.content_item, groupPosition));
     }
 
 // ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

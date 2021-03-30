@@ -17,6 +17,7 @@ import com.mtrilogic.interfaces.InflatableItemListener;
 import com.mtrilogic.interfaces.InflatableListener;
 import com.mtrilogic.mtrilogicsample.R;
 import com.mtrilogic.mtrilogicsample.databinding.FragmentInflatableBinding;
+import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
 import com.mtrilogic.mtrilogicsample.items.inflatables.InflatableDataItem;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 import com.mtrilogic.mtrilogicsample.pages.InflatablePage;
@@ -37,7 +38,7 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
         binding = FragmentInflatableBinding.inflate(inflater, container, false);
 
         ArrayList<Modelable> modelableList = page.getModelableList();
-        adapter = new InflatableAdapter(this, modelableList, ChildType.COUNT);
+        adapter = new InflatableAdapter(inflater, this, modelableList, ChildType.COUNT);
         binding.lvwItems.setAdapter(adapter);
 
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
@@ -76,19 +77,21 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
     }
 
     @Override
-    public Inflatable<? extends Modelable> getInflatable(int viewType, ViewGroup parent) {
+    public Inflatable<? extends Modelable> getInflatable(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
         Context context = getContext();
         if (viewType == ChildType.DATA) {
-            return new InflatableDataItem(context, R.layout.item_data, parent, this);
+            return new InflatableDataItem(ItemDataBinding.inflate(inflater, parent, false), this);
         }
         return null;
     }
 
+    @NonNull
     @Override
     public InflatableAdapter getInflatableAdapter(){
         return adapter;
     }
 
+    @NonNull
     @Override
     public InflatableView getInflatableView() {
         return binding.lvwItems;

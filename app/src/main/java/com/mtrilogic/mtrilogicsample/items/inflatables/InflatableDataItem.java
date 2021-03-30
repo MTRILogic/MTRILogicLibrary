@@ -1,9 +1,10 @@
 package com.mtrilogic.mtrilogicsample.items.inflatables;
 
 import android.content.Context;
-import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.RatingBar;
+
+import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.Inflatable;
 import com.mtrilogic.abstracts.Modelable;
@@ -15,27 +16,32 @@ import com.mtrilogic.mtrilogicsample.models.DataModel;
 
 @SuppressWarnings({"unused"})
 public class InflatableDataItem extends Inflatable<DataModel> implements RatingBar.OnRatingBarChangeListener, CompoundButton.OnCheckedChangeListener {
-    private final ItemDataBinding binding;
+    private ItemDataBinding binding;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public InflatableDataItem(Context context, int resource, ViewGroup parent, InflatableItemListener listener){
-        super(context, resource, parent, listener);
+    public InflatableDataItem(@NonNull ItemDataBinding binding, @NonNull InflatableItemListener listener){
+        super((binding.getRoot()), listener);
+    }
+
+// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    @Override
+    public void onBindItemView() {
         binding = ItemDataBinding.bind(itemView);
         binding.ratingBar.setOnRatingBarChangeListener(this);
         binding.chkItem.setOnCheckedChangeListener(this);
         binding.btnDelete.setOnClickListener(v -> autoDelete());
     }
 
-// ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
-
+    @NonNull
     @Override
-    protected DataModel getModel(Modelable modelable) {
+    public DataModel getModelFromModelable(@NonNull Modelable modelable) {
         return (DataModel) modelable;
     }
 
     @Override
-    protected void onBindHolder(){
+    public void onBindModel(){
         Context context = itemView.getContext();
         binding.chkItem.setChecked(model.isChecked());
         binding.ratingBar.setRating(model.getRating());
@@ -46,17 +52,15 @@ public class InflatableDataItem extends Inflatable<DataModel> implements RatingB
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         InflatableAdapter adapter = listener.getInflatableAdapter();
-        if (adapter != null){
-            model.setChecked(isChecked);
-            adapter.notifyDataSetChanged();
-            listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
-        }
+        model.setChecked(isChecked);
+        adapter.notifyDataSetChanged();
+        listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
     }
 
     @Override
     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
         InflatableAdapter adapter = listener.getInflatableAdapter();
-        if(adapter != null && fromUser){
+        if(fromUser){
             model.setRating(rating);
             adapter.notifyDataSetChanged();
             listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );

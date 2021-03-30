@@ -32,8 +32,7 @@ import com.mtrilogic.mtrilogicsample.pages.RecyclablePage;
 import com.mtrilogic.mtrilogicsample.types.PageType;
 
 @SuppressWarnings("unused")
-public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener,
-        FragmentableListener, FragmentablePageListener, OnMakeToastListener{
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, FragmentableListener, FragmentablePageListener, OnMakeToastListener{
     private static final int[] TITLES = {
             R.string.inflatable,
             R.string.recyclable,
@@ -125,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public void onPageScrollStateChanged(int i){}
 
     @Override
-    public Fragmentable<? extends Paginable> getFragmentable(Paginable paginable, int position){
+    public Fragmentable<? extends Paginable> getFragmentable(@NonNull Paginable paginable, int position){
         switch(paginable.getViewType()){
             case PageType.INFLATABLE:
                 return Fragmentable.getInstance(paginable, new InflatableFragment());
@@ -149,11 +148,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
     }
 
+    @NonNull
     @Override
     public FragmentableAdapter getFragmentableAdapter(){
         return adapter;
     }
 
+    @NonNull
     @Override
     public ViewPager getViewPager() {
         return binding.pager;

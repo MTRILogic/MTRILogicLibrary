@@ -1,9 +1,10 @@
 package com.mtrilogic.mtrilogicsample.items.recyclables;
 
 import android.content.Context;
-import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.RatingBar;
+
+import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.abstracts.Recyclable;
@@ -16,27 +17,32 @@ import com.mtrilogic.mtrilogicsample.models.DataModel;
 
 @SuppressWarnings({"unused","FieldCanBeLocal"})
 public class RecyclableDataItem extends Recyclable<DataModel> implements RatingBar.OnRatingBarChangeListener, CompoundButton.OnCheckedChangeListener {
-    private final ItemDataBinding binding;
+    private ItemDataBinding binding;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public RecyclableDataItem(Context context, int resource, ViewGroup parent, RecyclableItemListener listener){
-        super(context, resource, parent, listener);
+    public RecyclableDataItem(@NonNull ItemDataBinding binding, @NonNull RecyclableItemListener listener){
+        super(binding.getRoot(), listener);
+    }
+
+// ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    @Override
+    public void onBindItemView() {
         binding = ItemDataBinding.bind(itemView);
         binding.ratingBar.setOnRatingBarChangeListener(this);
         binding.chkItem.setOnCheckedChangeListener(this);
         binding.btnDelete.setOnClickListener(v -> autoDelete());
     }
 
-// ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
-
+    @NonNull
     @Override
-    protected DataModel getModel(Modelable modelable) {
+    public DataModel getModelFromModelable(@NonNull Modelable modelable) {
         return (DataModel) modelable;
     }
 
     @Override
-    protected void onBindHolder(){
+    public void onBindModel(){
         Context context = itemView.getContext();
         binding.chkItem.setChecked(model.isChecked());
         binding.ratingBar.setRating(model.getRating());
@@ -47,17 +53,15 @@ public class RecyclableDataItem extends Recyclable<DataModel> implements RatingB
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         RecyclableAdapter adapter = listener.getRecyclableAdapter();
-        if (adapter != null){
-            model.setChecked(isChecked);
-            adapter.notifyDataSetChanged();
-            listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
-        }
+        model.setChecked(isChecked);
+        adapter.notifyDataSetChanged();
+        listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
     }
 
     @Override
     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
         RecyclableAdapter adapter = listener.getRecyclableAdapter();
-        if(adapter != null && fromUser){
+        if(fromUser){
             model.setRating(rating);
             adapter.notifyDataSetChanged();
             listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
