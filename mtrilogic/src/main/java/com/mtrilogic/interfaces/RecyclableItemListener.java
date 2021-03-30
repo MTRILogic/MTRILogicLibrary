@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mtrilogic.adapters.RecyclableAdapter;
 
 @SuppressWarnings("unused")
-public interface RecyclableAdapterListener extends OnMakeToastListener{
+public interface RecyclableItemListener extends OnMakeToastListener{
     RecyclableAdapter getRecyclableAdapter();
     RecyclerView getRecyclerView();
 }

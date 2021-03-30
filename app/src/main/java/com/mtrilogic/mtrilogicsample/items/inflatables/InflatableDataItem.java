@@ -2,46 +2,29 @@ package com.mtrilogic.mtrilogicsample.items.inflatables;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageButton;
+import android.widget.CompoundButton;
 import android.widget.RatingBar;
-import android.widget.TextView;
 
 import com.mtrilogic.abstracts.Inflatable;
 import com.mtrilogic.abstracts.Modelable;
-import com.mtrilogic.interfaces.InflatableAdapterListener;
+import com.mtrilogic.adapters.InflatableAdapter;
+import com.mtrilogic.interfaces.InflatableItemListener;
 import com.mtrilogic.mtrilogicsample.R;
+import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 
 @SuppressWarnings({"unused"})
-public class InflatableDataItem extends Inflatable<DataModel> {
-    private static final String TAG = "InflatableDataItemTAG";
-    private final TextView lblTitle, lblContent;
-    private final CheckBox chkItem;
-    private final RatingBar ratingBar;
+public class InflatableDataItem extends Inflatable<DataModel> implements RatingBar.OnRatingBarChangeListener, CompoundButton.OnCheckedChangeListener {
+    private final ItemDataBinding binding;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public InflatableDataItem(Context context, int resource, ViewGroup parent){
-        this(context, resource, parent,(InflatableAdapterListener)context);
-    }
-
-    public InflatableDataItem(Context context, int resource, ViewGroup parent, InflatableAdapterListener listener){
+    public InflatableDataItem(Context context, int resource, ViewGroup parent, InflatableItemListener listener){
         super(context, resource, parent, listener);
-        ratingBar = itemView.findViewById(R.id.ratingBar);
-        ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
-            if(adapter != null && fromUser){
-                model.setRating(rating);
-                adapter.notifyDataSetChanged();
-                listener.onMakeToast("Rating Bar [" + position + "] set to " + rating );
-            }
-        });
-        chkItem = itemView.findViewById(R.id.chk_item);
-        chkItem.setOnClickListener(v -> updateChecked());
-        lblTitle = itemView.findViewById(R.id.lbl_title);
-        lblContent = itemView.findViewById(R.id.lbl_content);
-        ImageButton btnDelete = itemView.findViewById(R.id.btn_delete);
-        btnDelete.setOnClickListener(v -> autoDelete());
+        binding = ItemDataBinding.bind(itemView);
+        binding.ratingBar.setOnRatingBarChangeListener(this);
+        binding.chkItem.setOnCheckedChangeListener(this);
+        binding.btnDelete.setOnClickListener(v -> autoDelete());
     }
 
 // ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -53,20 +36,30 @@ public class InflatableDataItem extends Inflatable<DataModel> {
 
     @Override
     protected void onBindHolder(){
-        chkItem.setChecked(model.isChecked());
-        ratingBar.setRating(model.getRating());
-        lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
-        lblContent.setText(context.getString(R.string.content_item, position));
+        Context context = itemView.getContext();
+        binding.chkItem.setChecked(model.isChecked());
+        binding.ratingBar.setRating(model.getRating());
+        binding.lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
+        binding.lblContent.setText(context.getString(R.string.content_item, position));
     }
 
-// ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    private void updateChecked(){
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        InflatableAdapter adapter = listener.getInflatableAdapter();
         if (adapter != null){
-            boolean checked = chkItem.isChecked();
-            model.setChecked(checked);
+            model.setChecked(isChecked);
             adapter.notifyDataSetChanged();
-            listener.onMakeToast("Item [" + position + "] set to " + checked);
+            listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
+        }
+    }
+
+    @Override
+    public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+        InflatableAdapter adapter = listener.getInflatableAdapter();
+        if(adapter != null && fromUser){
+            model.setRating(rating);
+            adapter.notifyDataSetChanged();
+            listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
         }
     }
 }

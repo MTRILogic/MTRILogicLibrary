@@ -2,47 +2,29 @@ package com.mtrilogic.mtrilogicsample.items.expandables.childs;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageButton;
+import android.widget.CompoundButton;
 import android.widget.RatingBar;
-import android.widget.TextView;
 
 import com.mtrilogic.abstracts.ExpandableChild;
 import com.mtrilogic.abstracts.Modelable;
-import com.mtrilogic.interfaces.ExpandableAdapterListener;
+import com.mtrilogic.adapters.ExpandableAdapter;
+import com.mtrilogic.interfaces.ExpandableItemListener;
 import com.mtrilogic.mtrilogicsample.R;
+import com.mtrilogic.mtrilogicsample.databinding.ItemChildDataBinding;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 
 @SuppressWarnings({"unused","FieldCanBeLocal"})
-public class ChildDataItem extends ExpandableChild<DataModel> {
-    private static final String TAG = "ChildDataItemTAG";
-    private final TextView lblTitle, lblContent;
-    private final CheckBox chkItem;
-    private final RatingBar ratingBar;
+public class ChildDataItem extends ExpandableChild<DataModel> implements RatingBar.OnRatingBarChangeListener, CompoundButton.OnCheckedChangeListener {
+    private final ItemChildDataBinding binding;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public ChildDataItem(Context context, int resource, ViewGroup parent){
-        this(context, resource, parent,(ExpandableAdapterListener)context);
-    }
-
-    public ChildDataItem(Context context, int resource, ViewGroup parent, ExpandableAdapterListener listener){
+    public ChildDataItem(Context context, int resource, ViewGroup parent, ExpandableItemListener listener){
         super(context, resource, parent, listener);
-        ratingBar = itemView.findViewById(R.id.ratingBar);
-        ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
-            if(adapter != null && fromUser){
-                model.setRating(rating);
-                adapter.notifyDataSetChanged();
-                listener.onMakeToast("Rating Bar[" + groupPosition + "][" + childPosition +
-                        "] set to " + rating );
-            }
-        });
-        chkItem = itemView.findViewById(R.id.chk_item);
-        chkItem.setOnClickListener(v -> updateChecked());
-        lblTitle = itemView.findViewById(R.id.lbl_title);
-        lblContent = itemView.findViewById(R.id.lbl_content);
-        ImageButton btnDelete = itemView.findViewById(R.id.btn_delete);
-        btnDelete.setOnClickListener(v -> autoDelete());
+        binding = ItemChildDataBinding.bind(itemView);
+        binding.ratingBar.setOnRatingBarChangeListener(this);
+        binding.chkItem.setOnCheckedChangeListener(this);
+        binding.btnDelete.setOnClickListener(v -> autoDelete());
     }
 
 // ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,22 +36,30 @@ public class ChildDataItem extends ExpandableChild<DataModel> {
 
     @Override
     protected void onBindHolder(){
-        listener.onMakeToast("aqui es " + model.isChecked());
-        chkItem.setChecked(model.isChecked());
-        ratingBar.setRating(model.getRating());
-        lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
-        lblContent.setText(context.getString(R.string.content_item, childPosition));
+        Context context = itemView.getContext();
+        binding.chkItem.setChecked(model.isChecked());
+        binding.ratingBar.setRating(model.getRating());
+        binding.lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
+        binding.lblContent.setText(context.getString(R.string.content_item, childPosition));
     }
 
-// ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    private void updateChecked(){
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        ExpandableAdapter adapter = listener.getExpandableAdapter();
         if (adapter != null) {
-            boolean checked = chkItem.isChecked();
-            model.setChecked(checked);
+            model.setChecked(isChecked);
             adapter.notifyDataSetChanged();
-            listener.onMakeToast("Item [" + groupPosition + "," + childPosition +
-                    "] set to " + checked);
+            listener.onMakeToast("Item [" + groupPosition + "," + childPosition + "] set checked to " + isChecked);
+        }
+    }
+
+    @Override
+    public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+        ExpandableAdapter adapter = listener.getExpandableAdapter();
+        if(adapter != null && fromUser){
+            model.setRating(rating);
+            adapter.notifyDataSetChanged();
+            listener.onMakeToast("Rating Bar[" + groupPosition + "][" + childPosition + "] set rating to " + rating );
         }
     }
 }

@@ -8,35 +8,25 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 import com.mtrilogic.adapters.InflatableAdapter;
-import com.mtrilogic.interfaces.InflatableAdapterListener;
-import com.mtrilogic.interfaces.OnMakeToastListener;
-import com.mtrilogic.views.InflatableView;
+import com.mtrilogic.interfaces.InflatableItemListener;
 
 @SuppressWarnings({"unused","WeakerAccess"})
 public abstract class Inflatable<M extends Modelable> {
-    protected final OnMakeToastListener listener;
+    protected final InflatableItemListener listener;
     protected final View itemView;
-    protected InflatableAdapter adapter;
-    protected InflatableView lvwItems;
-    protected Context context;
     protected int position;
     protected M model;
 
 // ++++++++++++++++| PROTECTED ABSTRACT METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
 
     protected abstract M getModel(Modelable modelable);
-
     protected abstract void onBindHolder();
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public Inflatable(@NonNull Context context, int resource, @NonNull ViewGroup parent,
-                      @NonNull InflatableAdapterListener listener){
+    public Inflatable(@NonNull Context context, int resource, @NonNull ViewGroup parent, @NonNull InflatableItemListener listener){
         itemView = LayoutInflater.from(context).inflate(resource, parent, false);
-        this.context = context;
         this.listener = listener;
-        adapter = listener.getInflatableAdapter();
-        lvwItems = listener.getInflatableView();
     }
 
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,6 +44,7 @@ public abstract class Inflatable<M extends Modelable> {
 // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     protected void autoDelete(){
+        InflatableAdapter adapter = listener.getInflatableAdapter();
         if (adapter != null){
             if (adapter.removeModelable(model)){
                 adapter.notifyDataSetChanged();

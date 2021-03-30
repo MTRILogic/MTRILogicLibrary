@@ -9,22 +9,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 
 import com.mtrilogic.adapters.FragmentableAdapter;
-import com.mtrilogic.interfaces.FragmentableAdapterListener;
+import com.mtrilogic.interfaces.FragmentablePageListener;
 import com.mtrilogic.interfaces.OnMakeToastListener;
 
 @SuppressWarnings({"unused","WeakerAccess"})
 public abstract class Fragmentable<P extends Paginable> extends Fragment implements OnMakeToastListener {
     private static final String PAGINABLE = "paginable", STATE = "state";
-    protected abstract View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
 
+    protected abstract View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
     protected abstract void onNewPosition();
-    protected FragmentableAdapterListener listener;
-    protected FragmentableAdapter adapter;
-    protected ViewPager viewPager;
-    protected Context context;
+
+    protected FragmentablePageListener listener;
     protected Bundle args;
     protected int position;
     protected P page;
@@ -44,11 +41,8 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        this.context = context;
-        if (context instanceof FragmentableAdapterListener){
-            listener = (FragmentableAdapterListener) context;
-            adapter = listener.getFragmentableAdapter();
-            viewPager = listener.getViewPager();
+        if (context instanceof FragmentablePageListener){
+            listener = (FragmentablePageListener) context;
         }
     }
 
@@ -112,9 +106,12 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
 // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     protected void autoDelete(){
-        if (adapter != null){
-            if (adapter.removePaginable(page)){
-                adapter.notifyDataSetChanged();
+        if (listener != null) {
+            FragmentableAdapter adapter = listener.getFragmentableAdapter();
+            if (adapter != null) {
+                if (adapter.removePaginable(page)) {
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
     }

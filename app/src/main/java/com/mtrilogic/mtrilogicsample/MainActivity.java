@@ -1,8 +1,6 @@
 package com.mtrilogic.mtrilogicsample;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
-import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
@@ -11,7 +9,6 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
 import android.widget.Toast;
@@ -22,9 +19,10 @@ import com.mtrilogic.adapters.FragmentableAdapter;
 import com.mtrilogic.classes.Base;
 import com.mtrilogic.classes.Listable;
 import com.mtrilogic.classes.StateViewModel;
-import com.mtrilogic.interfaces.FragmentableAdapterListener;
+import com.mtrilogic.interfaces.FragmentablePageListener;
 import com.mtrilogic.interfaces.FragmentableListener;
 import com.mtrilogic.interfaces.OnMakeToastListener;
+import com.mtrilogic.mtrilogicsample.databinding.ActivityMainBinding;
 import com.mtrilogic.mtrilogicsample.fragments.ExpandableFragment;
 import com.mtrilogic.mtrilogicsample.fragments.InflatableFragment;
 import com.mtrilogic.mtrilogicsample.fragments.RecyclableFragment;
@@ -35,7 +33,7 @@ import com.mtrilogic.mtrilogicsample.types.PageType;
 
 @SuppressWarnings("unused")
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener,
-        FragmentableListener, FragmentableAdapterListener, OnMakeToastListener{
+        FragmentableListener, FragmentablePageListener, OnMakeToastListener{
     private static final int[] TITLES = {
             R.string.inflatable,
             R.string.recyclable,
@@ -47,20 +45,19 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             PageType.EXPANDABLE
     };
     private static final String TAG = "MainActivityTAG", LIST = "list", IDX = "idx";
+    private ActivityMainBinding binding;
     private ActionBar actionBar;
     private StateViewModel paginableState;
     private FragmentableAdapter adapter;
-    private FloatingActionsMenu fam;
-    private ViewPager pager;
     private long idx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         actionBar = getSupportActionBar();
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -83,36 +80,37 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             paginableState.setUpdate();
         }
 
-        adapter = new FragmentableAdapter(getSupportFragmentManager(),this,
-                paginableState.getListable().getModelableList());
-        pager = findViewById(R.id.pager);
-        pager.setAdapter(adapter);
-        pager.addOnPageChangeListener(this);
-        TabLayout tabs = findViewById(R.id.tabs);
-        tabs.setupWithViewPager(pager);
+        adapter = new FragmentableAdapter(getSupportFragmentManager(),this, paginableState.getListable().getModelableList());
+        binding.pager.setAdapter(adapter);
+        binding.pager.addOnPageChangeListener(this);
+        binding.tabs.setupWithViewPager(binding.pager);
 
-        if(tabs.getTabCount() > 0){
+        if(binding.tabs.getTabCount() > 0){
             adapter.notifyDataSetChanged();
         }
-        if(tabs.getSelectedTabPosition() == 0){
+        if(binding.tabs.getSelectedTabPosition() == 0){
             pageSelected(0);
         }
 
-        fam = findViewById(R.id.fam);
-
-        FloatingActionButton fabInflatable = findViewById(R.id.fab_inflatable);
+        FloatingActionButton fabInflatable = findViewById(R.id.fabInflatable);
         fabInflatable.setOnClickListener(v -> addNewPaginable(getNewPaginable(0)));
 
-        FloatingActionButton fabRecyclable = findViewById(R.id.fab_recyclable);
+        FloatingActionButton fabRecyclable = findViewById(R.id.fabRecyclable);
         fabRecyclable.setOnClickListener(v -> addNewPaginable(getNewPaginable(1)));
 
-        FloatingActionButton fabExpandable = findViewById(R.id.fab_expandable);
+        FloatingActionButton fabExpandable = findViewById(R.id.fabExpandable);
         fabExpandable.setOnClickListener(v -> addNewPaginable(getNewPaginable(2)));
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState){
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 
     @Override
@@ -158,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     public ViewPager getViewPager() {
-        return pager;
+        return binding.pager;
     }
 
     @Override
@@ -186,11 +184,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 if (index == 0){
                     pageSelected(0);
                 }else {
-                    pager.setCurrentItem(index);
+                    binding.pager.setCurrentItem(index);
                 }
             }
         }
-        fam.collapse();
+        binding.fam.collapse();
     }
 
     private Paginable getNewPaginable(int index){

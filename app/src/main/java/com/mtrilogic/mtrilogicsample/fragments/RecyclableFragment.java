@@ -10,16 +10,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.mtrilogic.abstracts.Fragmentable;
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.abstracts.Recyclable;
 import com.mtrilogic.adapters.RecyclableAdapter;
-import com.mtrilogic.interfaces.RecyclableAdapterListener;
+import com.mtrilogic.interfaces.RecyclableItemListener;
 import com.mtrilogic.interfaces.RecyclableListener;
 import com.mtrilogic.mtrilogicsample.R;
+import com.mtrilogic.mtrilogicsample.databinding.FragmentRecyclableBinding;
 import com.mtrilogic.mtrilogicsample.items.recyclables.RecyclableDataItem;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 import com.mtrilogic.mtrilogicsample.pages.RecyclablePage;
@@ -28,39 +27,39 @@ import com.mtrilogic.mtrilogicsample.types.ChildType;
 import java.util.ArrayList;
 
 @SuppressWarnings("unused")
-public class RecyclableFragment extends Fragmentable<RecyclablePage> implements RecyclableListener, RecyclableAdapterListener{
-    private static final String TAG = "RecyclableFragmentTAG";
+public class RecyclableFragment extends Fragmentable<RecyclablePage> implements RecyclableListener, RecyclableItemListener {
+    private FragmentRecyclableBinding binding;
     private RecyclableAdapter adapter;
-    private RecyclerView lvwItems;
-    private TextView lblContent;
 
 // PROTECTED OVERRIDE METHODS |*********************************************************************
 
     @Override
-    protected View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                                        @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_recyclable,container,false);
+    protected View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentRecyclableBinding.inflate(inflater, container, false);
+
         ArrayList<Modelable> modelables = page.getModelableList();
         adapter = new RecyclableAdapter(this, modelables);
-        lvwItems = view.findViewById(R.id.lvw_items);
-        lvwItems.setLayoutManager(new LinearLayoutManager(getContext()));
-        lvwItems.setAdapter(adapter);
-        TextView lblTitle = view.findViewById(R.id.lbl_title);
-        lblTitle.setText(getString(R.string.title_item, page.getItemId()));
-        lblContent = view.findViewById(R.id.lbl_content);
-        ImageButton btnAddData = view.findViewById(R.id.btn_addData);
-        btnAddData.setOnClickListener(v -> addModelable());
-        ImageButton btnDelete = view.findViewById(R.id.btn_delete);
-        btnDelete.setOnClickListener(v -> autoDelete());
-        return view;
+        binding.lvwItems.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.lvwItems.setAdapter(adapter);
+
+        binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
+        binding.btnAddData.setOnClickListener(v -> addModelable());
+        binding.btnDelete.setOnClickListener(v -> autoDelete());
+        return binding.getRoot();
     }
 
     @Override
     protected void onNewPosition() {
-        lblContent.setText(getString(R.string.content_item, position));
+        binding.lblContent.setText(getString(R.string.content_item, position));
     }
 
     // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        binding = null;
+    }
 
     @Override
     public Recyclable<? extends Modelable> getRecyclable(int viewType, ViewGroup parent){
@@ -78,7 +77,7 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
 
     @Override
     public RecyclerView getRecyclerView() {
-        return lvwItems;
+        return binding.lvwItems;
     }
 
 
