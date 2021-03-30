@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MTRILogicLibrary</string>
+    <string name="title_sample">ItemId: 26</string>
+    <string name="title_item">ItemId: %1$d</string>
+    <string name="content_sample">Position: 12</string>
+    <string name="content_item">Position: %1$d</string>
+
+    <string name="inflatable">Inflatable</string>
+    <string name="recyclable">Recyclable</string>
+    <string name="expandable">Expandable</string>
+</resources>

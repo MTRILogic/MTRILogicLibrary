@@ -1,0 +1,3 @@
+rootProject.name = "MTRILogicLibrary"
+include ':app'
+include ':mtrilogic'
