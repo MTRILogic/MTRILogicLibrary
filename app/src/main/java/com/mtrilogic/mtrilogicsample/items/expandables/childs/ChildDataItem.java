@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.ExpandableChild;
 import com.mtrilogic.abstracts.Modelable;
-import com.mtrilogic.adapters.ExpandableAdapter;
 import com.mtrilogic.interfaces.ExpandableItemListener;
 import com.mtrilogic.mtrilogicsample.R;
 import com.mtrilogic.mtrilogicsample.databinding.ItemChildDataBinding;
@@ -45,24 +44,22 @@ public class ChildDataItem extends ExpandableChild<DataModel> implements RatingB
         Context context = itemView.getContext();
         binding.lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
         binding.lblContent.setText(context.getString(R.string.content_item, childPosition));
-        binding.chkItem.setChecked(model.isChecked());
         binding.ratingBar.setRating(model.getRating());
+        binding.chkItem.setChecked(model.isChecked());
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        ExpandableAdapter adapter = listener.getExpandableAdapter();
         model.setChecked(isChecked);
-        adapter.notifyDataSetChanged();
+        listener.getExpandableAdapter().notifyDataSetChanged();
         listener.onMakeToast("Item [" + groupPosition + "," + childPosition + "] set checked to " + isChecked);
     }
 
     @Override
     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-        ExpandableAdapter adapter = listener.getExpandableAdapter();
         if(fromUser){
             model.setRating(rating);
-            adapter.notifyDataSetChanged();
+            listener.getExpandableAdapter().notifyDataSetChanged();
             listener.onMakeToast("Rating Bar[" + groupPosition + "][" + childPosition + "] set rating to " + rating );
         }
     }

@@ -8,13 +8,13 @@ import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import com.mtrilogic.abstracts.ExpandableChild;
 import com.mtrilogic.abstracts.ExpandableGroup;
 import com.mtrilogic.abstracts.Fragmentable;
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.adapters.ExpandableAdapter;
-import com.mtrilogic.classes.Listable;
 import com.mtrilogic.classes.Mapable;
 import com.mtrilogic.interfaces.ExpandableItemListener;
 import com.mtrilogic.interfaces.ExpandableListener;
@@ -31,21 +31,20 @@ import com.mtrilogic.mtrilogicsample.types.ChildType;
 import com.mtrilogic.views.ExpandableView;
 
 @SuppressWarnings("unused")
-public class ExpandableFragment extends Fragmentable<ExpandablePage> implements ExpandableListener, ExpandableItemListener {
+public class ExpandableFragment extends Fragmentable<ExpandablePage> implements CompoundButton.OnCheckedChangeListener, ExpandableListener, ExpandableItemListener {
     private FragmentExpandableBinding binding;
     private ExpandableAdapter adapter;
 
 // PROTECTED OVERRIDE METHODS |*********************************************************************
 
+    @NonNull
     @Override
     protected View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        adapter = new ExpandableAdapter(inflater, this, GroupType.COUNT, ChildType.COUNT);
+
         binding = FragmentExpandableBinding.inflate(inflater, container, false);
-
-        Listable<Modelable> groupListable = page.getGroupListable();
-        Mapable<Modelable> childMapable = page.getChildMapable();
-        adapter = new ExpandableAdapter(inflater, this, groupListable, childMapable, GroupType.COUNT, ChildType.COUNT);
         binding.lvwItems.setAdapter(adapter);
-
+        binding.chkItem.setOnCheckedChangeListener(this);
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
         binding.btnAddGroup.setOnClickListener(v -> addGroupModelable());
         binding.btnDelete.setOnClickListener(v -> autoDelete());
@@ -53,15 +52,27 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        onNewPosition();
+    }
+
+    @Override
     protected void onNewPosition() {
         binding.lblContent.setText(getString(R.string.content_item, position));
     }
 
-// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    @Override
+    protected void onNewPage() {
+        // nothing for now
+    }
+
+    // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onResume() {
+        super.onResume();
+        Bundle args = getArguments();
         if (args != null){
             binding.lvwItems.restoreFromState(args);
         }
@@ -69,6 +80,7 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
 
     @Override
     public void onPause() {
+        Bundle args = getArguments();
         if (args != null){
             binding.lvwItems.saveToState(args);
         }
@@ -79,6 +91,11 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
     public void onDestroy() {
         super.onDestroy();
         binding = null;
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        // nothing for now
     }
 
     @Override
@@ -110,15 +127,39 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
         return binding.lvwItems;
     }
 
-// *************************************************************************************************
+    @Override
+    public boolean onChildLongClick(@NonNull Modelable modelable, int groupPosition, int childPosition, boolean lastChild) {
+        return false; // nothing for now
+    }
+
+    @Override
+    public boolean onGroupLongClick(@NonNull Modelable modelable, int groupPosition, boolean expanded) {
+        return false; // nothing for now
+    }
+
+    @Override
+    public void onChildClick(@NonNull Modelable modelable, int groupPosition, int childPosition, boolean lastChild) {
+        // nothing for now
+    }
+
+    @Override
+    public void onGroupClick(@NonNull Modelable modelable, int groupPosition, boolean expanded) {
+        // nothing for now
+    }
+
+    @NonNull
+    @Override
+    public Mapable<Modelable> getModelableMapable() {
+        // null pointer exception ?
+        return page.getModelableMapable();
+    }
+
+    // *************************************************************************************************
 
     private void addGroupModelable(){
-        Listable<Modelable> groupListable = page.getGroupListable();
-        long idx = groupListable.getIdx();
-        DataModel model = new DataModel(idx, false);
-        if(adapter.appendGroupModelable(model, new Listable<>())){
+        DataModel model = new DataModel();
+        if (page.getModelableMapable().appendGroup(model)){
             adapter.notifyDataSetChanged();
-            groupListable.setIdx(++idx);
         }
     }
 }

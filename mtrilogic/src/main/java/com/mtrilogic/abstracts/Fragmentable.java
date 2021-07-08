@@ -10,28 +10,31 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.mtrilogic.adapters.FragmentableAdapter;
-import com.mtrilogic.interfaces.FragmentablePageListener;
+import com.mtrilogic.interfaces.FragmentListener;
 import com.mtrilogic.interfaces.OnMakeToastListener;
 
 @SuppressWarnings({"unused","WeakerAccess"})
 public abstract class Fragmentable<P extends Paginable> extends Fragment implements OnMakeToastListener {
-    private static final String PAGINABLE = "paginable", STATE = "state";
+    private static final String PAGINABLE = "paginable", POSITION = "position";
 
-    protected abstract View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
-    protected abstract void onNewPosition();
-
-    protected FragmentablePageListener listener;
-    protected Bundle args;
+    protected FragmentListener listener;
     protected int position;
     protected P page;
 
+// ++++++++++++++++| PROTECTED ABSTRACTS METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    @NonNull
+    protected abstract View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
+    protected abstract void onNewPosition();
+    protected abstract void onNewPage();
+
 // ++++++++++++++++| PUBLIC STATIC METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public static Fragmentable<? extends Paginable> getInstance(Paginable paginable, Fragmentable<? extends Paginable> fragmentable){
+    @NonNull
+    public static Fragmentable<? extends Paginable> getInstance(@NonNull Fragmentable<? extends Paginable> fragmentable, @NonNull Paginable paginable, int position){
         Bundle args = new Bundle();
         args.putParcelable(PAGINABLE, paginable);
-        args.putBundle(STATE, new Bundle());
+        args.putInt(POSITION, position);
         fragmentable.setArguments(args);
         return fragmentable;
     }
@@ -41,30 +44,47 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof FragmentablePageListener){
-            listener = (FragmentablePageListener) context;
+        if (context instanceof FragmentListener){
+            listener = (FragmentListener) context;
         }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        args = getArguments();
-        if (args != null){
-            page = args.getParcelable(PAGINABLE);
+        if (savedInstanceState != null){
+            page = savedInstanceState.getParcelable(PAGINABLE);
+            position = savedInstanceState.getInt(POSITION);
+        }else {
+            Bundle args = getArguments();
+            if (args != null){
+                page = args.getParcelable(PAGINABLE);
+                position = args.getInt(POSITION);
+            }
         }
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public final View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (page != null){
-            position = listener.getFragmentableAdapter().getPaginablePosition(page);
-            View view = onCreateViewFragment(inflater, container, savedInstanceState);
-            onNewPosition();
-            return view;
+            return onCreateViewFragment(inflater, container, savedInstanceState);
         }
         return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        position = listener.getPaginableListable().getItemPosition(page);
+        onNewPosition();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable(PAGINABLE, page);
+        outState.putInt(POSITION, position);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -74,14 +94,14 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
     }
 
     @Override
-    public void onMakeToast(String line){
-        if (listener != null) {
+    public final void onMakeToast(String line) {
+        if (listener != null){
             listener.onMakeToast(line);
         }
     }
 
     @Override
-    public void onMakeLog(String line) {
+    public final void onMakeLog(String line) {
         if (listener != null){
             listener.onMakeLog(line);
         }
@@ -89,28 +109,29 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
 
     // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public Paginable getPaginable(){
+    public final void setPage(P page) {
+        this.page = page;
+        onNewPage();
+    }
+
+    public final Paginable getPaginable(){
         return page;
     }
 
-    public int getPosition() {
+    public final void setPosition(int position) {
+        this.position = position;
+        onNewPosition();
+    }
+
+    public final int getPosition() {
         return position;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
-        onNewPosition();
-        String s = super.getTag();
-    }
+    // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-// ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    protected void autoDelete(){
-        if (listener != null) {
-            FragmentableAdapter adapter = listener.getFragmentableAdapter();
-            if (adapter.removePaginable(page)) {
-                adapter.notifyDataSetChanged();
-            }
+    protected final void autoDelete(){
+        if (listener != null && listener.getPaginableListable().deleteItem(page)) {
+            listener.getFragmentableAdapter().notifyDataSetChanged();
         }
     }
 }

@@ -8,123 +8,60 @@ import android.view.ViewGroup;
 
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.abstracts.Recyclable;
-import com.mtrilogic.classes.Base;
+import com.mtrilogic.classes.Listable;
 import com.mtrilogic.interfaces.RecyclableListener;
 
-import java.util.ArrayList;
-
 @SuppressWarnings({"unused"})
-public class RecyclableAdapter extends RecyclerView.Adapter<Recyclable<? extends Modelable>>{
-    private static final String TAG = "RecyclableAdapter";
+public final class RecyclableAdapter extends RecyclerView.Adapter<Recyclable<? extends Modelable>>{
     private final RecyclableListener listener;
     private final LayoutInflater inflater;
-    private ArrayList<Modelable> modelableList;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public RecyclableAdapter(@NonNull LayoutInflater inflater, @NonNull RecyclableListener listener, @NonNull ArrayList<Modelable> modelableList){
+    public RecyclableAdapter(@NonNull LayoutInflater inflater, @NonNull RecyclableListener listener){
         this.inflater = inflater;
         this.listener = listener;
-        this.modelableList = modelableList;
         setHasStableIds(true);
-    }
-
-// ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    public int getModelablePosition(Modelable modelable){
-        return modelableList.indexOf(modelable);
-    }
-
-    public Modelable[] getModelableArray(){
-        return modelableList.toArray(new Modelable[getItemCount()]);
-    }
-
-    public ArrayList<Modelable> getModelableList(){
-        return modelableList;
-    }
-
-    public void setModelableList(ArrayList<Modelable> modelableList){
-        this.modelableList = modelableList;
-    }
-
-    public boolean addModelableList(ArrayList<Modelable> modelableList){
-        return this.modelableList.addAll(modelableList);
-    }
-
-    public boolean insertModelableList(int position, ArrayList<Modelable> modelableList){
-        return isValidPosition(position) && this.modelableList.addAll(position, modelableList);
-    }
-
-    public boolean removeModelableList(ArrayList<Modelable> modelableList){
-        return this.modelableList.removeAll(modelableList);
-    }
-
-    public boolean retainModelableList(ArrayList<Modelable> modelableList){
-        return this.modelableList.retainAll(modelableList);
-    }
-
-    public Modelable getModelable(int position){
-        return isValidPosition(position) ? getItem(position) : null;
-    }
-
-    public Modelable setModelable(int position, Modelable modelable){
-        return isValidPosition(position) ? modelableList.set(position,modelable) : null;
-    }
-
-    public boolean addModelable(Modelable modelable){
-        return modelableList.add(modelable);
-    }
-
-    public void insertModelable(int position, Modelable modelable){
-        if(isValidPosition(position)){
-            modelableList.add(position, modelable);
-        }
-    }
-
-    public boolean removeModelable(Modelable modelable){
-        return modelableList.remove(modelable);
-    }
-
-    public void clearModelableList(){
-        modelableList.clear();
     }
 
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @NonNull
     @Override
-    public Recyclable<? extends Modelable> onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
-        return listener.getRecyclable(viewType, inflater, parent);
+    public final Recyclable<? extends Modelable> onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
+        Recyclable<? extends Modelable> recyclable = listener.getRecyclable(viewType, inflater, parent);
+        recyclable.onBindItemView();
+        return recyclable;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull Recyclable holder, int position){
-        Modelable modelable = getItem(position);
+    public final void onBindViewHolder(@NonNull Recyclable holder, int position){
+        Modelable modelable = getModelable(position);
         holder.bindModel(modelable, position);
     }
 
     @Override
-    public int getItemCount(){
-        return modelableList.size();
+    public final int getItemCount(){
+        return getModelableListable().getItemCount();
     }
 
     @Override
-    public int getItemViewType(int position){
-        return getItem(position).getViewType();
+    public final int getItemViewType(int position){
+        return getModelable(position).getViewType();
     }
 
     @Override
-    public long getItemId(int position){
-        return getItem(position).getItemId();
+    public final long getItemId(int position){
+        return getModelable(position).getItemId();
     }
 
 // ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    private boolean isValidPosition(int position){
-        return position > Base.INVALID_POSITION && position < getItemCount();
+    private Listable<Modelable> getModelableListable(){
+        return listener.getModelableListable();
     }
 
-    private Modelable getItem(int position){
-        return modelableList.get(position);
+    private Modelable getModelable(int position){
+        return getModelableListable().getItem(position);
     }
 }

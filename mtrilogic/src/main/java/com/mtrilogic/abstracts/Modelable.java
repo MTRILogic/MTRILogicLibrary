@@ -15,31 +15,59 @@ public abstract class Modelable implements Parcelable {
 
     public Modelable(){}
 
-    public Modelable(Bundle data){
-        onRestoreFromData(data);
-    }
-
     public Modelable(long itemId, int viewType, boolean enabled){
         this.itemId = itemId;
         this.viewType = viewType;
         this.enabled = enabled;
     }
 
+// ++++++++++++++++| PROTECTED CONSTRUCTORS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    protected Modelable(Bundle data){
+        onRestoreFromData(data);
+    }
+
+// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    @Override
+    public final void writeToParcel(Parcel dest, int flags){
+        Bundle data = new Bundle();
+        onSaveToData(data);
+        dest.writeBundle(data);
+    }
+
+    @Override
+    public final int describeContents(){
+        return 0;
+    }
+
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public long getItemId(){
+    public final void setItemId(long itemId) {
+        this.itemId = itemId;
+    }
+
+    public final long getItemId(){
         return itemId;
     }
 
-    public int getViewType(){
+    public final void setViewType(int viewType) {
+        this.viewType = viewType;
+    }
+
+    public final int getViewType(){
         return viewType;
     }
 
-    public boolean isEnabled(){
+    public final void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public final boolean isEnabled(){
         return enabled;
     }
 
-// ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     protected void onRestoreFromData(Bundle data){
         itemId = data.getLong(ITEM_ID);
@@ -51,19 +79,5 @@ public abstract class Modelable implements Parcelable {
         data.putLong(ITEM_ID, itemId);
         data.putInt(VIEW_TYPE, viewType);
         data.putBoolean(ENABLED, enabled);
-    }
-
-// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags){
-        Bundle data = new Bundle();
-        onSaveToData(data);
-        dest.writeBundle(data);
-    }
-
-    @Override
-    public final int describeContents(){
-        return 0;
     }
 }

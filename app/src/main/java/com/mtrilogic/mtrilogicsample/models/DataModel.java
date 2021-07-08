@@ -10,16 +10,18 @@ import com.mtrilogic.mtrilogicsample.types.ChildType;
 public class DataModel extends Modelable{
     public static final Creator<DataModel> CREATOR = new ModelableCreator<DataModel>() {
         @Override
-        public DataModel getParcelable(Bundle data) {
+        public DataModel createFromData(Bundle data) {
             return new DataModel(data);
         }
 
         @Override
-        public DataModel[] getParcelableArray(int size) {
+        public DataModel[] newArray(int size) {
             return new DataModel[size];
         }
     };
+
     private static final String TITLE = "title", CONTENT = "content", CHECKED = "checked", RATING = "rating";
+
     private String title, content;
     private boolean checked;
     private float rating;
@@ -28,17 +30,12 @@ public class DataModel extends Modelable{
 
     public DataModel(){}
 
-    public DataModel(Bundle data){
+    private DataModel(Bundle data){
         super(data);
     }
 
     public DataModel(long itemId, boolean checked){
-        this(itemId, ChildType.DATA, false);
-    }
-
-    public DataModel(long itemId, int viewType, boolean checked){
-        super(itemId, viewType,true);
-        this.checked = checked;
+        super(itemId, ChildType.DATA, false);
     }
 
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

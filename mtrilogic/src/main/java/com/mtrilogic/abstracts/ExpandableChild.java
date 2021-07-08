@@ -4,13 +4,13 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.mtrilogic.adapters.ExpandableAdapter;
+import com.mtrilogic.classes.Mapable;
 import com.mtrilogic.interfaces.Bindable;
 import com.mtrilogic.interfaces.ExpandableItemListener;
 import com.mtrilogic.views.ExpandableView;
 
 @SuppressWarnings({"unused","WeakerAccess"})
-public abstract class ExpandableChild <M extends Modelable> implements Bindable<M> {
+public abstract class ExpandableChild <M extends Modelable> implements Bindable<M>, View.OnLongClickListener, View.OnClickListener {
     protected final ExpandableItemListener listener;
     protected final View itemView;
     protected int groupPosition;
@@ -23,16 +23,18 @@ public abstract class ExpandableChild <M extends Modelable> implements Bindable<
     public ExpandableChild(@NonNull View itemView, @NonNull ExpandableItemListener listener){
         this.itemView = itemView;
         this.listener = listener;
-        onBindItemView();
     }
 
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public View getItemView(){
+    public final View getItemView(){
+        itemView.setOnLongClickListener(this);
+        itemView.setOnClickListener(this);
+        onBindItemView();
         return itemView;
     }
 
-    public void bindModel(@NonNull Modelable modelable, int groupPosition, int childPosition, boolean lastChild){
+    public final void bindModel(@NonNull Modelable modelable, int groupPosition, int childPosition, boolean lastChild){
         model = getModelFromModelable(modelable);
         this.groupPosition = groupPosition;
         this.childPosition = childPosition;
@@ -40,16 +42,28 @@ public abstract class ExpandableChild <M extends Modelable> implements Bindable<
         onBindModel();
     }
 
+// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    @Override
+    public final boolean onLongClick(View v) {
+        return listener.onChildLongClick(model, groupPosition, childPosition, lastChild);
+    }
+
+    @Override
+    public final void onClick(View v) {
+        listener.onChildClick(model, groupPosition, childPosition, lastChild);
+    }
+
 // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    protected void autoDelete(){
-        ExpandableAdapter adapter = listener.getExpandableAdapter();
-        if (adapter.deleteChildModelable(adapter.getGroupModelable(groupPosition), model)){
-            adapter.notifyDataSetChanged();
-            if (adapter.getChildrenCount(groupPosition) == 0){
-                ExpandableView lvwItems = listener.getExpandableView();
-                if (lvwItems.isGroupExpanded(groupPosition)) {
-                    lvwItems.collapseGroup(groupPosition);
+    protected final void autoDelete(){
+        Mapable<Modelable> modelableMapable = listener.getModelableMapable();
+        if (modelableMapable.deleteChild(groupPosition, model)){
+            listener.getExpandableAdapter().notifyDataSetChanged();
+            if (modelableMapable.getChildCount(groupPosition) == 0){
+                ExpandableView lvlItems = listener.getExpandableView();
+                if (lvlItems.isGroupExpanded(groupPosition)){
+                    lvlItems.collapseGroup(groupPosition);
                 }
             }
         }

@@ -15,6 +15,7 @@ import com.mtrilogic.abstracts.Fragmentable;
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.abstracts.Recyclable;
 import com.mtrilogic.adapters.RecyclableAdapter;
+import com.mtrilogic.classes.Listable;
 import com.mtrilogic.interfaces.RecyclableItemListener;
 import com.mtrilogic.interfaces.RecyclableListener;
 import com.mtrilogic.mtrilogicsample.R;
@@ -25,8 +26,6 @@ import com.mtrilogic.mtrilogicsample.models.DataModel;
 import com.mtrilogic.mtrilogicsample.pages.RecyclablePage;
 import com.mtrilogic.mtrilogicsample.types.ChildType;
 
-import java.util.ArrayList;
-
 @SuppressWarnings("unused")
 public class RecyclableFragment extends Fragmentable<RecyclablePage> implements RecyclableListener, RecyclableItemListener {
     private FragmentRecyclableBinding binding;
@@ -34,15 +33,14 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
 
 // PROTECTED OVERRIDE METHODS |*********************************************************************
 
+    @NonNull
     @Override
     protected View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentRecyclableBinding.inflate(inflater, container, false);
+        adapter = new RecyclableAdapter(inflater, this);
 
-        ArrayList<Modelable> modelables = page.getModelableList();
-        adapter = new RecyclableAdapter(inflater, this, modelables);
+        binding = FragmentRecyclableBinding.inflate(inflater, container, false);
         binding.lvwItems.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.lvwItems.setAdapter(adapter);
-
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
         binding.btnAddData.setOnClickListener(v -> addModelable());
         binding.btnDelete.setOnClickListener(v -> autoDelete());
@@ -54,7 +52,12 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
         binding.lblContent.setText(getString(R.string.content_item, position));
     }
 
-    // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    @Override
+    protected void onNewPage() {
+        // nothing for now
+    }
+
+// ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @Override
     public void onDestroy() {
@@ -83,16 +86,29 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
         return binding.lvwItems;
     }
 
+    @Override
+    public boolean onItemLongClick(@NonNull Modelable modelable, int position) {
+        return false; // nothing for now
+    }
 
+    @Override
+    public void onItemClick(@NonNull Modelable modelable, int position) {
+        // nothing for now
+    }
+
+    @NonNull
+    @Override
+    public Listable<Modelable> getModelableListable() {
+        // null pointer exception ?
+        return page.getModelableListable();
+    }
 
     // ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     private void addModelable(){
-        long idx = page.getIdx();
-        Modelable modelable = new DataModel(idx, false);
-        if (adapter.addModelable(modelable)){
+        DataModel model = new DataModel();
+        if (page.getModelableListable().appendItem(model)){
             adapter.notifyDataSetChanged();
-            page.setIdx(++idx);
         }
     }
 }

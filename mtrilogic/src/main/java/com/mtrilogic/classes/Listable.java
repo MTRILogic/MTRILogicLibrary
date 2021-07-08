@@ -1,5 +1,7 @@
 package com.mtrilogic.classes;
 
+import android.os.Bundle;
+
 import com.mtrilogic.abstracts.Modelable;
 
 import java.util.ArrayList;
@@ -7,89 +9,102 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 
 @SuppressWarnings("unused")
-public class Listable<M extends Modelable>{
-    private ArrayList<M> modelableList;
+public final class Listable<M extends Modelable>{
+    private static final String LIST = "list", IDX = "idx";
+
+    private final ArrayList<M> list;
     private long idx;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     public Listable(){
-        modelableList = new ArrayList<>();
+        list = new ArrayList<>();
     }
 
-    public Listable(@NonNull ArrayList<M> modelableList, long idx){
-        this.modelableList = modelableList;
-        this.idx = idx;
+    public Listable(@NonNull Bundle data){
+        list = data.getParcelableArrayList(LIST);
+        idx = data.getLong(IDX);
+    }
+
+    public Listable(@NonNull Bundle data, long itemId){
+        list = data.getParcelableArrayList(LIST + itemId);
+        idx = data.getLong(IDX + itemId);
     }
 
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    // IDX
-    public long getIdx(){
+    public final long getIdx(){
         return idx;
     }
 
-    public void setIdx(long idx){
+    public final void setIdx(long idx){
         this.idx = idx;
     }
 
-    // APPEND
-    public boolean appendModelable(@NonNull M modelable){
-        return modelableList.add(modelable);
+    public final ArrayList<M> getList(){
+        return list;
     }
 
-    // INSERT
-    public boolean insertModelable(int position, @NonNull M modelable){
-        if(isValidPosition(position)){
-            modelableList.add(position, modelable);
+    public final void saveToData(@NonNull Bundle data){
+        data.putParcelableArrayList(LIST, list);
+        data.putLong(IDX, idx);
+    }
+
+    public final void saveToData(@NonNull Bundle data, long itemId){
+        data.putParcelableArrayList(LIST + itemId, list);
+        data.putLong(IDX + itemId, idx);
+    }
+
+    public final boolean appendItem(@NonNull M item){
+        if (list.add(item)){
+            item.setItemId(idx++);
             return true;
         }
         return false;
     }
 
-    // GET
-    public ArrayList<M> getModelableList(){
-        return modelableList;
+    public final boolean insertItem(int position, @NonNull M item){
+        if(isValidPosition(position)){
+            list.add(position, item);
+            item.setItemId(idx++);
+            return true;
+        }
+        return false;
     }
 
-    public Modelable getModelable(int position){
-        return isValidPosition(position) ? modelableList.get(position) : null;
+    public final M getItem(int position){
+        return isValidPosition(position) ? list.get(position) : null;
     }
 
-    // SET
-    public void setModelableList(@NonNull ArrayList<M> modelableList){
-        this.modelableList = modelableList;
+    public final M setItem(int position, @NonNull M item){
+        return isValidPosition(position) ? list.set(position, item) : null;
     }
 
-    public Modelable setModelable(int position, @NonNull M modelable){
-        return isValidPosition(position) ? modelableList.set(position, modelable) : null;
+    //@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public final boolean containsItem(@NonNull M item){
+        return list.contains(item);
     }
 
-    // CONTAINS
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean containsModelable(@NonNull M modelable){
-        return modelableList.contains(modelable);
+    public final int getItemPosition(@NonNull M item){
+        return list.indexOf(item);
     }
 
-    // DELETE
-    public boolean deleteModelable(@NonNull M modelable){
-        return modelableList.remove(modelable);
+    public final boolean deleteItem(@NonNull M item){
+        return list.remove(item);
     }
 
-    // COUNT
-    public int getModelableCount(){
-        return modelableList.size();
+    public final int getItemCount(){
+        return list.size();
     }
 
-    // RESET
-    public void reset(){
-        modelableList.clear();
+    public final void reset(){
+        list.clear();
         idx = 0;
     }
 
 // ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     private boolean isValidPosition(int position){
-        return position > Base.INVALID_POSITION && position < getModelableCount();
+        return position > Base.INVALID_POSITION && position < list.size();
     }
 }

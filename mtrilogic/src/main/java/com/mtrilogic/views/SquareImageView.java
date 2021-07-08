@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import com.mtrilogic.mtrilogic.R;
 
 @SuppressWarnings("unused")
-public class SquareImageView extends AppCompatImageView{
+public final class SquareImageView extends AppCompatImageView{
     private final boolean portrait;
 
     public SquareImageView(Context context, boolean portrait){

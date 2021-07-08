@@ -8,7 +8,7 @@ import android.widget.ListView;
 
 import com.mtrilogic.classes.Base;
 
-public class InflatableView extends ListView {
+public final class InflatableView extends ListView {
     private static final String INDEX = "index", TOP = "top";
 
     public InflatableView(Context context) {

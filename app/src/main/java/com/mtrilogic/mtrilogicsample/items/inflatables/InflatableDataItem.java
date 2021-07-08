@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.Inflatable;
 import com.mtrilogic.abstracts.Modelable;
-import com.mtrilogic.adapters.InflatableAdapter;
 import com.mtrilogic.interfaces.InflatableItemListener;
 import com.mtrilogic.mtrilogicsample.R;
 import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
@@ -51,18 +50,16 @@ public class InflatableDataItem extends Inflatable<DataModel> implements RatingB
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        InflatableAdapter adapter = listener.getInflatableAdapter();
         model.setChecked(isChecked);
-        adapter.notifyDataSetChanged();
+        listener.getInflatableAdapter().notifyDataSetChanged();
         listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
     }
 
     @Override
     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-        InflatableAdapter adapter = listener.getInflatableAdapter();
         if(fromUser){
             model.setRating(rating);
-            adapter.notifyDataSetChanged();
+            listener.getInflatableAdapter().notifyDataSetChanged();
             listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
         }
     }

@@ -8,129 +8,70 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.mtrilogic.abstracts.Fragmentable;
 import com.mtrilogic.abstracts.Paginable;
 import com.mtrilogic.classes.Base;
+import com.mtrilogic.classes.Listable;
 import com.mtrilogic.interfaces.FragmentableListener;
 
-import java.util.ArrayList;
-
-@SuppressWarnings({"unused"})
-public class FragmentableAdapter extends FragmentPagerAdapter{
-    private static final String TAG = "FragmentableAdapterTAG";
+@SuppressWarnings({"unused","deprecation"})
+public final class FragmentableAdapter extends FragmentPagerAdapter{
     private final FragmentableListener listener;
-    private ArrayList<Paginable> paginableList;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public FragmentableAdapter(@NonNull FragmentManager manager, @NonNull FragmentableListener listener, @NonNull ArrayList<Paginable> paginableList){
+    public FragmentableAdapter(@NonNull FragmentManager manager, @NonNull FragmentableListener listener){
         super(manager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.listener = listener;
-        this.paginableList = paginableList;
-    }
-
-// ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    public int getPaginablePosition(Paginable paginable){
-        return paginableList.indexOf(paginable);
-    }
-
-    public Paginable[] getPaginableArray(){
-        return paginableList.toArray(new Paginable[getCount()]);
-    }
-
-    public ArrayList<Paginable> getPaginableList(){
-        return paginableList;
-    }
-
-    public void setPaginableList(ArrayList<Paginable> paginableList){
-        this.paginableList = paginableList;
-    }
-
-    public boolean addPaginableList(ArrayList<Paginable> paginableList){
-        return this.paginableList.addAll(paginableList);
-    }
-
-    public boolean insertPaginableList(int position, ArrayList<Paginable> paginableList){
-        return this.paginableList.addAll(position, paginableList);
-    }
-
-    public boolean removePaginableList(ArrayList<Paginable> paginableList){
-        return this.paginableList.removeAll(paginableList);
-    }
-
-    public boolean retainPaginableList(ArrayList<Paginable> paginableList){
-        return this.paginableList .retainAll(paginableList);
-    }
-
-    public Paginable getPaginable(int position){
-        return isValidPosition(position) ? paginableList.get(position) : null;
-    }
-
-    public Paginable setPaginable(int position, Paginable paginable){
-        return isValidPosition(position) ? paginableList.set(position, paginable) : null;
-    }
-
-    public boolean addPaginable(Paginable paginable){
-        return paginableList.add(paginable);
-    }
-
-    public void insertPaginable(int position, Paginable paginable){
-        if(isValidPosition(position)){
-            paginableList.add(position, paginable);
-        }
-    }
-
-    public boolean removePaginable(Paginable paginable){
-        return paginableList.remove(paginable);
-    }
-
-    public void clearPaginableList(){
-        paginableList.clear();
     }
 
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @NonNull
     @Override
-    public Fragmentable<? extends Paginable> getItem(int position){
-        Paginable paginable = paginableList.get(position);
-        return listener.getFragmentable(paginable, position);
+    public final Fragmentable<? extends Paginable> getItem(int position){
+        return listener.getFragmentable(getPaginable(position), position);
     }
 
     @Override
-    public int getCount(){
-        return paginableList.size();
+    public final int getCount(){
+        return getPaginableListable().getItemCount();
     }
 
     @Override
-    public int getItemPosition(@NonNull Object object){
+    public final int getItemPosition(@NonNull Object object){
         Fragmentable<? extends Paginable> fragmentable = (Fragmentable<? extends Paginable>)object;
         Paginable paginable = fragmentable.getPaginable();
-        int position = fragmentable.getPosition();
-        int paginablePosition = getPaginablePosition(paginable);
-        if(position == paginablePosition){
+        if (listener.getPaginableListable().containsItem(paginable)){
+            int position = getPaginableListable().getItemPosition(paginable);
+            if (fragmentable.getPosition() != position){
+                fragmentable.setPosition(position);
+                listener.onPositionChanged(position);
+                return position;
+            }
             return POSITION_UNCHANGED;
         }
-        fragmentable.setPosition(paginablePosition);
-        listener.onPositionChanged(paginablePosition);
-        if (paginablePosition == Base.INVALID_POSITION){
-            return POSITION_NONE;
+        if (getCount() == 0){
+            listener.onPositionChanged(Base.INVALID_POSITION);
         }
-        return paginablePosition;
+        return POSITION_NONE;
     }
 
     @Nullable
     @Override
-    public CharSequence getPageTitle(int position){
-        return paginableList.get(position).getPageTitle();
+    public final CharSequence getPageTitle(int position){
+        return getPaginable(position).getPageTitle();
     }
 
     @Override
-    public long getItemId(int position){
-        return paginableList.get(position).getItemId();
+    public final long getItemId(int position){
+        return getPaginable(position).getItemId();
     }
 
 // ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    private boolean isValidPosition(int position){
-        return position > Base.INVALID_POSITION && position < getCount();
+    private Listable<Paginable> getPaginableListable(){
+        return listener.getPaginableListable();
+    }
+
+    private Paginable getPaginable(int position){
+        return getPaginableListable().getItem(position);
     }
 }

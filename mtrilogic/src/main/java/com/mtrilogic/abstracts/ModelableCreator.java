@@ -7,30 +7,23 @@ import android.os.Parcelable;
 @SuppressWarnings("unused")
 public abstract class ModelableCreator<M extends Modelable> implements Parcelable.ClassLoaderCreator<M>{
 
-    public abstract M getParcelable(Bundle data);
+// ++++++++++++++++| PUBLIC ABSTRACT METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public abstract M[] getParcelableArray(int size);
+    protected abstract M createFromData(Bundle data);
+
+// ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @Override
     public final M createFromParcel(Parcel src, ClassLoader loader){
-        return getParcelable(src, loader);
+        Bundle data;
+        if (src == null || loader == null || (data = src.readBundle(loader)) == null){
+            data = new Bundle();
+        }
+        return createFromData(data);
     }
 
     @Override
     public final M createFromParcel(Parcel src){
-        return getParcelable(src,null);
-    }
-
-    @Override
-    public final M[] newArray(int size){
-        return getParcelableArray(size);
-    }
-
-    private M getParcelable(Parcel source, ClassLoader loader){
-        Bundle data;
-        if (source == null || loader == null || (data = source.readBundle(loader)) == null){
-            data = new Bundle();
-        }
-        return getParcelable(data);
+        return createFromParcel(src, null);
     }
 }

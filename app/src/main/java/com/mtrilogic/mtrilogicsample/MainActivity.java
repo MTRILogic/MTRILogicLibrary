@@ -3,8 +3,6 @@ package com.mtrilogic.mtrilogicsample;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,10 +16,8 @@ import com.mtrilogic.abstracts.Paginable;
 import com.mtrilogic.adapters.FragmentableAdapter;
 import com.mtrilogic.classes.Base;
 import com.mtrilogic.classes.Listable;
-import com.mtrilogic.classes.StateViewModel;
-import com.mtrilogic.interfaces.FragmentablePageListener;
+import com.mtrilogic.interfaces.FragmentListener;
 import com.mtrilogic.interfaces.FragmentableListener;
-import com.mtrilogic.interfaces.OnMakeToastListener;
 import com.mtrilogic.mtrilogicsample.databinding.ActivityMainBinding;
 import com.mtrilogic.mtrilogicsample.fragments.ExpandableFragment;
 import com.mtrilogic.mtrilogicsample.fragments.InflatableFragment;
@@ -32,7 +28,7 @@ import com.mtrilogic.mtrilogicsample.pages.RecyclablePage;
 import com.mtrilogic.mtrilogicsample.types.PageType;
 
 @SuppressWarnings("unused")
-public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, FragmentableListener, FragmentablePageListener, OnMakeToastListener{
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, FragmentableListener, FragmentListener{
     private static final int[] TITLES = {
             R.string.inflatable,
             R.string.recyclable,
@@ -43,16 +39,31 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             PageType.RECYCLABLE,
             PageType.EXPANDABLE
     };
-    private static final String TAG = "MainActivityTAG", LIST = "list", IDX = "idx";
+    private static final String TAG = "MainActivityTAG";
     private ActivityMainBinding binding;
     private ActionBar actionBar;
-    private StateViewModel paginableState;
     private FragmentableAdapter adapter;
-    private long idx;
+    private Listable<Paginable> paginableListable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
+        if(savedInstanceState != null) {
+            paginableListable = new Listable<>(savedInstanceState);
+        }else {
+            int count = 0;
+            paginableListable = new Listable<>();
+            for (int i = 0; i < 3; i++){
+                Paginable paginable = getNewPaginable(i);
+                if (paginable != null && paginableListable.appendItem(paginable)){
+                    count++; // no used
+                }
+            }
+        }
+
+        adapter = new FragmentableAdapter(getSupportFragmentManager(),this);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -62,24 +73,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Observer<Listable<Paginable>> paginableObserver = listable -> makeToast("Count: " + listable.getModelableCount());
-        paginableState = new ViewModelProvider(this).get(StateViewModel.class);
-        paginableState.getListableLiveData().observe(this, paginableObserver);
-
-        if(savedInstanceState != null) {
-            idx = paginableState.getListable().getIdx();
-        }else {
-            for(int i = 0; i < 3; i++){
-                Paginable paginable = getNewPaginable(i);
-                if(paginable != null && paginableState.getListable().getModelableList().add(paginable)){
-                    idx++;
-                }
-            }
-            paginableState.getListable().setIdx(idx);
-            paginableState.setUpdate();
-        }
-
-        adapter = new FragmentableAdapter(getSupportFragmentManager(),this, paginableState.getListable().getModelableList());
         binding.pager.setAdapter(adapter);
         binding.pager.addOnPageChangeListener(this);
         binding.tabs.setupWithViewPager(binding.pager);
@@ -103,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState){
+        paginableListable.saveToData(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -127,11 +121,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public Fragmentable<? extends Paginable> getFragmentable(@NonNull Paginable paginable, int position){
         switch(paginable.getViewType()){
             case PageType.INFLATABLE:
-                return Fragmentable.getInstance(paginable, new InflatableFragment());
+                return Fragmentable.getInstance(new InflatableFragment(), paginable, position);
             case PageType.RECYCLABLE:
-                return Fragmentable.getInstance(paginable, new RecyclableFragment());
+                return Fragmentable.getInstance(new RecyclableFragment(), paginable, position);
             case PageType.EXPANDABLE:
-                return Fragmentable.getInstance(paginable, new ExpandableFragment());
+                return Fragmentable.getInstance(new ExpandableFragment(), paginable, position);
         }
         return null;
     }
@@ -139,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     @Override
     public void onPositionChanged(int position){
         if (position == Base.INVALID_POSITION){
-            paginableState.setUpdate();
             if (adapter.getCount() == 0) {
                 actionBar.setTitle(R.string.app_name);
             }
@@ -160,6 +153,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return binding.pager;
     }
 
+    @NonNull
+    @Override
+    public Listable<Paginable> getPaginableListable() {
+        return paginableListable;
+    }
+
     @Override
     public void onMakeToast(String line){
         makeToast(line);
@@ -176,12 +175,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     private void addNewPaginable(Paginable paginable){
         if (paginable != null){
-            Listable<Paginable> listable = paginableState.getListable();
-            if (listable.appendModelable(paginable)){
-                listable.setIdx(++idx);
+            if (paginableListable.appendItem(paginable)){
                 adapter.notifyDataSetChanged();
-                paginableState.setUpdate();
-                int index = adapter.getCount() - 1;
+                int index = paginableListable.getItemCount() - 1;
                 if (index == 0){
                     pageSelected(0);
                 }else {
@@ -193,16 +189,16 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
     private Paginable getNewPaginable(int index){
-        String pageTitle  = getString(TITLES[index]);
+        String pageTitle = getString(TITLES[index]);
         String tagName = pageTitle.toLowerCase();
         int viewType = TYPES[index];
         switch (viewType){
             case PageType.INFLATABLE:
-                return new InflatablePage(pageTitle, tagName, idx);
+                return new InflatablePage(pageTitle, tagName, 0, viewType);
             case PageType.RECYCLABLE:
-                return new RecyclablePage(pageTitle, tagName, idx);
+                return new RecyclablePage(pageTitle, tagName, 0, viewType);
             case PageType.EXPANDABLE:
-                return new ExpandablePage(pageTitle, tagName, idx);
+                return new ExpandablePage(pageTitle, tagName, 0, viewType);
         }
         return null;
     }
@@ -212,6 +208,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
     private void makeLog(String line){
-        Log.d(TAG, "makeLog: " + line);
+        Log.d(TAG, "MTRI: " + line);
     }
 }

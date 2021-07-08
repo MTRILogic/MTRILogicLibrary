@@ -11,31 +11,33 @@ public abstract class Paginable extends Modelable {
 
     public Paginable(){}
 
-    public Paginable(Bundle data){
-        super(data);
-    }
-
     public Paginable(String pageTitle, String tagName, long itemId, int viewType){
         super(itemId, viewType,true);
         this.pageTitle = pageTitle;
         this.tagName = tagName;
     }
 
+// ++++++++++++++++| PROTECTED CONSTRUCTORS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    protected Paginable(Bundle data){
+        super(data);
+    }
+
 // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public String getPageTitle(){
+    public final String getPageTitle(){
         return pageTitle;
     }
 
-    public void setPageTitle(String pageTitle){
+    public final void setPageTitle(String pageTitle){
         this.pageTitle = pageTitle;
     }
 
-    public String getTagName(){
+    public final String getTagName(){
         return tagName;
     }
 
-    public void setTagName(String tagName){
+    public final void setTagName(String tagName){
         this.tagName = tagName;
     }
 
@@ -43,15 +45,15 @@ public abstract class Paginable extends Modelable {
 
     @Override
     protected void onRestoreFromData(Bundle data) {
+        super.onRestoreFromData(data);
         pageTitle = data.getString(PAGE_TITLE);
         tagName = data.getString(TAG_NAME);
-        super.onRestoreFromData(data);
     }
 
     @Override
     protected void onSaveToData(Bundle data) {
+        super.onSaveToData(data);
         data.putString(PAGE_TITLE, pageTitle);
         data.putString(TAG_NAME, tagName);
-        super.onSaveToData(data);
     }
 }

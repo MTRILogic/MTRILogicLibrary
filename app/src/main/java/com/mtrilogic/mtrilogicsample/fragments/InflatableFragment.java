@@ -13,6 +13,7 @@ import com.mtrilogic.abstracts.Fragmentable;
 import com.mtrilogic.abstracts.Inflatable;
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.adapters.InflatableAdapter;
+import com.mtrilogic.classes.Listable;
 import com.mtrilogic.interfaces.InflatableItemListener;
 import com.mtrilogic.interfaces.InflatableListener;
 import com.mtrilogic.mtrilogicsample.R;
@@ -24,8 +25,6 @@ import com.mtrilogic.mtrilogicsample.pages.InflatablePage;
 import com.mtrilogic.mtrilogicsample.types.ChildType;
 import com.mtrilogic.views.InflatableView;
 
-import java.util.ArrayList;
-
 @SuppressWarnings("unused")
 public class InflatableFragment extends Fragmentable<InflatablePage> implements InflatableListener, InflatableItemListener {
     private FragmentInflatableBinding binding;
@@ -33,14 +32,13 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
 
 // PROTECTED OVERRIDE METHODS |*********************************************************************
 
+    @NonNull
     @Override
     protected View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        adapter = new InflatableAdapter(inflater, this, ChildType.COUNT);
+
         binding = FragmentInflatableBinding.inflate(inflater, container, false);
-
-        ArrayList<Modelable> modelableList = page.getModelableList();
-        adapter = new InflatableAdapter(inflater, this, modelableList, ChildType.COUNT);
         binding.lvwItems.setAdapter(adapter);
-
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
         binding.btnAddData.setOnClickListener(v -> addModelable());
         binding.btnDelete.setOnClickListener(v -> autoDelete());
@@ -52,11 +50,17 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
         binding.lblContent.setText(getString(R.string.content_item, position));
     }
 
+    @Override
+    protected void onNewPage() {
+        // nothing for now
+    }
+
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onResume() {
+        super.onResume();
+        Bundle args = getArguments();
         if (args != null){
             binding.lvwItems.restoreFromState(args);
         }
@@ -64,6 +68,7 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
 
     @Override
     public void onPause() {
+        Bundle args = getArguments();
         if (args != null) {
             binding.lvwItems.saveToState(args);
         }
@@ -97,14 +102,29 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
         return binding.lvwItems;
     }
 
-// ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    @NonNull
+    @Override
+    public Listable<Modelable> getModelableListable() {
+        // null pointer exception ?
+        return page.getModelableListable();
+    }
+
+    @Override
+    public boolean onItemLongClick(@NonNull Modelable modelable, int position) {
+        return false; // nothing for now
+    }
+
+    @Override
+    public void onItemClick(@NonNull Modelable modelable, int position) {
+        // nothing for now
+    }
+
+    // ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     private void addModelable(){
-        long idx = page.getIdx();
-        DataModel model = new DataModel(idx, false);
-        if (adapter.addModelable(model)){
+        DataModel model = new DataModel();
+        if (page.getModelableListable().appendItem(model)){
             adapter.notifyDataSetChanged();
-            page.setIdx(++idx);
         }
     }
 }

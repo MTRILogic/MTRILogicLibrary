@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.abstracts.Recyclable;
 
-import com.mtrilogic.adapters.RecyclableAdapter;
 import com.mtrilogic.interfaces.RecyclableItemListener;
 import com.mtrilogic.mtrilogicsample.R;
 import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
@@ -44,26 +43,26 @@ public class RecyclableDataItem extends Recyclable<DataModel> implements RatingB
     @Override
     public void onBindModel(){
         Context context = itemView.getContext();
-        binding.chkItem.setChecked(model.isChecked());
-        binding.ratingBar.setRating(model.getRating());
         binding.lblTitle.setText(context.getString(R.string.title_item, model.getItemId()));
         binding.lblContent.setText(context.getString(R.string.content_item, position));
+        listener.getRecyclerView().post(() -> {
+            binding.ratingBar.setRating(model.getRating());
+            binding.chkItem.setChecked(model.isChecked());
+        });
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        RecyclableAdapter adapter = listener.getRecyclableAdapter();
         model.setChecked(isChecked);
-        adapter.notifyDataSetChanged();
+        listener.getRecyclableAdapter().notifyItemChanged(position);
         listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
     }
 
     @Override
     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-        RecyclableAdapter adapter = listener.getRecyclableAdapter();
         if(fromUser){
             model.setRating(rating);
-            adapter.notifyDataSetChanged();
+            listener.getRecyclableAdapter().notifyItemChanged(position);
             listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
         }
     }

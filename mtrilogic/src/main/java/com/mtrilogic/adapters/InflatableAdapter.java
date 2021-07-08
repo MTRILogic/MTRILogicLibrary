@@ -9,125 +9,48 @@ import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.Inflatable;
 import com.mtrilogic.abstracts.Modelable;
-import com.mtrilogic.classes.Base;
+import com.mtrilogic.classes.Listable;
 import com.mtrilogic.interfaces.InflatableListener;
 
-import java.util.ArrayList;
-
 @SuppressWarnings({"unused","WeakerAccess"})
-public class InflatableAdapter extends BaseAdapter{
-    private static final String TAG = "InflatableAdapter";
+public final class InflatableAdapter extends BaseAdapter{
     private final InflatableListener listener;
-    private ArrayList<Modelable> modelableList;
     private final LayoutInflater inflater;
-    private int typeCount;
-    private boolean stableIds;
+    private final int typeCount;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public InflatableAdapter(@NonNull LayoutInflater inflater, @NonNull InflatableListener listener, @NonNull ArrayList<Modelable> modelableList, int typeCount){
+    public InflatableAdapter(@NonNull LayoutInflater inflater, @NonNull InflatableListener listener, int typeCount){
         this.inflater = inflater;
         this.listener = listener;
-        this.modelableList = modelableList;
-        setTypeCount(typeCount);
-        stableIds = true;
-    }
-
-// ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-    public void setTypeCount(int typeCount){
-        typeCount = typeCount > 0 ? typeCount : 1;
-        this.typeCount = typeCount;
-    }
-
-    public void setStableIds(boolean stableIds){
-        this.stableIds = stableIds;
-    }
-
-    public int getModelablePosition(Modelable modelable){
-        return modelableList.indexOf(modelable);
-    }
-
-    private Modelable[] getModelableArray(){
-        return modelableList.toArray(new Modelable[getCount()]);
-    }
-
-    public ArrayList<Modelable> getModelableList(){
-        return modelableList;
-    }
-
-    public void setModelableList(ArrayList<Modelable> modelableList){
-        this.modelableList = modelableList;
-    }
-
-    public boolean addModelableList(ArrayList<Modelable> modelableList){
-        return this.modelableList.addAll(modelableList);
-    }
-
-    public boolean insertModelableList(int position, ArrayList<Modelable> modelableList){
-        return isValidPosition(position) && this.modelableList.addAll(position, modelableList);
-    }
-
-    public boolean removeModelableList(ArrayList<Modelable> modelableList){
-        return this.modelableList.removeAll(modelableList);
-    }
-
-    public boolean retainModelableList(ArrayList<Modelable> modelableList){
-        return this.modelableList.retainAll(modelableList);
-    }
-
-    public Modelable getModelable(int position){
-        return isValidPosition(position) ? modelableList.get(position) : null;
-    }
-
-    public Modelable setModelable(int position, Modelable modelable){
-        return isValidPosition(position) ? modelableList.set(position, modelable) : null;
-    }
-
-    public boolean addModelable(Modelable modelable){
-        return modelableList.add(modelable);
-    }
-
-    public void insertModelable(int position, Modelable modelable){
-        if(isValidPosition(position)){
-            modelableList.add(position, modelable);
-        }
-    }
-
-    public boolean removeModelable(Modelable modelable){
-        return modelableList.remove(modelable);
-    }
-
-    public void clearModelableList(){
-        modelableList.clear();
+        this.typeCount = Math.max(typeCount, 1);
     }
 
 // +++++++++++++++++| PUBLIC OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @Override
-    public int getCount(){
-        return modelableList.size();
+    public final int getCount(){
+        return getModelableListable().getItemCount();
     }
 
     @Override
-    public Modelable getItem(int position){
-        return modelableList.get(position);
-        // you should not use this method to get a modelable,
-        // instead you should use getModelable(int) method
+    public final Modelable getItem(int position){
+        return getModelable(position);
     }
 
     @Override
-    public long getItemId(int position){
+    public final long getItemId(int position){
         return getItem(position).getItemId();
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent){
+    public final View getView(int position, View convertView, ViewGroup parent){
         Modelable modelable = getItem(position);
-        Inflatable<? extends Modelable> inflatable;
+        Inflatable<? extends Modelable> inflatable = null;
         if(convertView != null){
-            inflatable = (Inflatable<? extends Modelable>)convertView.getTag();
-        }else{
+            inflatable = (Inflatable<? extends Modelable>) convertView.getTag();
+        }
+        if (inflatable == null){
             int viewType = modelable.getViewType();
             inflatable = listener.getInflatable(viewType, inflater, parent);
             convertView = inflatable.getItemView();
@@ -138,28 +61,37 @@ public class InflatableAdapter extends BaseAdapter{
     }
 
     @Override
-    public boolean isEnabled(int position){
+    public final View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return getView(position, convertView, parent);
+    }
+
+    @Override
+    public final boolean isEnabled(int position){
         return getItem(position).isEnabled();
     }
 
     @Override
-    public int getItemViewType(int position){
+    public final int getItemViewType(int position){
         return getItem(position).getViewType();
     }
 
     @Override
-    public int getViewTypeCount(){
+    public final int getViewTypeCount(){
         return typeCount;
     }
 
     @Override
-    public boolean hasStableIds(){
-        return stableIds;
+    public final boolean hasStableIds() {
+        return true;
     }
 
 // ++++++++++++++++| PRIVATE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    private boolean isValidPosition(int position){
-        return position > Base.INVALID_POSITION && position < getCount();
+    private Listable<Modelable> getModelableListable(){
+        return listener.getModelableListable();
+    }
+
+    private Modelable getModelable(int position){
+        return getModelableListable().getItem(position);
     }
 }

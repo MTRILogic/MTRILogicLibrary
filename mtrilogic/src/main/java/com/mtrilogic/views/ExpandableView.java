@@ -8,7 +8,7 @@ import android.widget.ExpandableListView;
 
 import com.mtrilogic.classes.Base;
 
-public class ExpandableView extends ExpandableListView {
+public final class ExpandableView extends ExpandableListView {
     private static final String INDEX = "index", TOP = "top";
 
     public ExpandableView(Context context) {

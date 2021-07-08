@@ -1,32 +1,14 @@
 package com.mtrilogic.mtrilogicsample.pages;
 
-import android.os.Bundle;
-
-import com.mtrilogic.abstracts.PaginableCreator;
-import com.mtrilogic.abstracts.ListablePage;
-import com.mtrilogic.mtrilogicsample.types.PageType;
+import com.mtrilogic.pages.ListablePage;
 
 @SuppressWarnings("unused")
 public class InflatablePage extends ListablePage {
-    public static final Creator<InflatablePage> CREATOR = new PaginableCreator<InflatablePage>() {
-        @Override
-        public InflatablePage getParcelable(Bundle data) {
-            return new InflatablePage(data);
-        }
-
-        @Override
-        public InflatablePage[] getParcelableArray(int size) {
-            return new InflatablePage[size];
-        }
-    };
-
-    public InflatablePage(){}
-
-    public InflatablePage(String pageTitle, String tagName, long itemId){
-        super(pageTitle, tagName, itemId, PageType.INFLATABLE);
+    public InflatablePage() {
+        super();
     }
 
-    private InflatablePage(Bundle data){
-        super(data);
+    public InflatablePage(String pageTitle, String tagName, long itemId, int viewType) {
+        super(pageTitle, tagName, itemId, viewType);
     }
 }
