@@ -7,6 +7,7 @@
     android:background="#007F00"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
     android:padding="5dp">
 
     <LinearLayout
@@ -14,14 +15,15 @@
         android:layout_height="match_parent"
         android:gravity="center">
 
-        <CheckBox
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/chkItem"
             android:background="#FFFFFF"
             android:button="@drawable/checkbox_background"
             android:scaleX="1.5"
             android:scaleY="1.5"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:focusable="false"/>
 
     </LinearLayout>
 
@@ -51,18 +53,22 @@
 
     </LinearLayout>
 
-    <ImageButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btnAddData"
         android:src="@android:drawable/ic_menu_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:ignore="ContentDescription"/>
+        android:focusableInTouchMode="true"
+        android:focusable="false"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btnDelete"
         android:src="@android:drawable/ic_menu_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:focusableInTouchMode="true"
+        android:focusable="false"
         tools:ignore="ContentDescription"/>
 
 </LinearLayout>

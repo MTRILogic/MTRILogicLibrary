@@ -55,7 +55,7 @@ public class RecyclableDataItem extends Recyclable<DataModel> implements RatingB
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         model.setChecked(isChecked);
         listener.getRecyclableAdapter().notifyItemChanged(position);
-        listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
+        //listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class RecyclableDataItem extends Recyclable<DataModel> implements RatingB
         if(fromUser){
             model.setRating(rating);
             listener.getRecyclableAdapter().notifyItemChanged(position);
-            listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
+            //listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
         }
     }
 }

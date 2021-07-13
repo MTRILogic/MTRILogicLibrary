@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
 import com.mtrilogic.abstracts.ExpandableChild;
 import com.mtrilogic.abstracts.ExpandableGroup;
@@ -31,7 +30,7 @@ import com.mtrilogic.mtrilogicsample.types.ChildType;
 import com.mtrilogic.views.ExpandableView;
 
 @SuppressWarnings("unused")
-public class ExpandableFragment extends Fragmentable<ExpandablePage> implements CompoundButton.OnCheckedChangeListener, ExpandableListener, ExpandableItemListener {
+public class ExpandableFragment extends Fragmentable<ExpandablePage> implements ExpandableListener, ExpandableItemListener {
     private FragmentExpandableBinding binding;
     private ExpandableAdapter adapter;
 
@@ -44,7 +43,27 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
 
         binding = FragmentExpandableBinding.inflate(inflater, container, false);
         binding.lvwItems.setAdapter(adapter);
-        binding.chkItem.setOnCheckedChangeListener(this);
+        //This does not work
+        binding.lvwItems.setOnGroupClickListener((parent, v, groupPosition, id) -> {
+            onMakeToast("ItemId = " + id + ", groupPos = " + groupPosition);
+            if (binding.lvwItems.isGroupExpanded(groupPosition)){
+                binding.lvwItems.collapseGroup(groupPosition);
+            }else {
+                binding.lvwItems.expandGroup(groupPosition);
+            }
+            return true;
+        });
+        binding.lvwItems.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+            onMakeToast("ItemId = " + id + ", groupPos = " + groupPosition + ", childPos = " + childPosition);
+            return true;
+        });
+        binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            for (Modelable modelable : page.getModelableMapable().getGroupListable().getList()){
+                DataModel model = (DataModel) modelable;
+                model.setChecked(binding.chkItem.isChecked());
+            }
+            adapter.notifyDataSetChanged();
+        });
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
         binding.btnAddGroup.setOnClickListener(v -> addGroupModelable());
         binding.btnDelete.setOnClickListener(v -> autoDelete());
@@ -91,11 +110,6 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
     public void onDestroy() {
         super.onDestroy();
         binding = null;
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        // nothing for now
     }
 
     @Override
@@ -158,6 +172,7 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
 
     private void addGroupModelable(){
         DataModel model = new DataModel();
+        model.setChecked(binding.chkItem.isChecked());
         if (page.getModelableMapable().appendGroup(model)){
             adapter.notifyDataSetChanged();
         }

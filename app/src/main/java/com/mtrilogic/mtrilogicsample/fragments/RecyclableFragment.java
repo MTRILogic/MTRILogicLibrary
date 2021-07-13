@@ -44,6 +44,13 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
         binding.btnAddData.setOnClickListener(v -> addModelable());
         binding.btnDelete.setOnClickListener(v -> autoDelete());
+        binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            for (Modelable modelable : page.getModelableListable().getList()){
+                DataModel model = (DataModel) modelable;
+                model.setChecked(binding.chkItem.isChecked());
+            }
+            adapter.notifyDataSetChanged();
+        });
         return binding.getRoot();
     }
 
@@ -107,6 +114,7 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
 
     private void addModelable(){
         DataModel model = new DataModel();
+        model.setChecked(binding.chkItem.isChecked());
         if (page.getModelableListable().appendItem(model)){
             adapter.notifyDataSetChanged();
         }

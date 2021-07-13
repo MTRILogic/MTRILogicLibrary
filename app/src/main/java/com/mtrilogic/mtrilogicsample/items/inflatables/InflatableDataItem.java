@@ -52,7 +52,7 @@ public class InflatableDataItem extends Inflatable<DataModel> implements RatingB
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         model.setChecked(isChecked);
         listener.getInflatableAdapter().notifyDataSetChanged();
-        listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
+        //listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class InflatableDataItem extends Inflatable<DataModel> implements RatingB
         if(fromUser){
             model.setRating(rating);
             listener.getInflatableAdapter().notifyDataSetChanged();
-            listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
+            //listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
         }
     }
 }

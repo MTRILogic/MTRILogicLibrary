@@ -52,7 +52,7 @@ public class ChildDataItem extends ExpandableChild<DataModel> implements RatingB
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         model.setChecked(isChecked);
         listener.getExpandableAdapter().notifyDataSetChanged();
-        listener.onMakeToast("Item [" + groupPosition + "," + childPosition + "] set checked to " + isChecked);
+        //listener.onMakeToast("Item [" + groupPosition + "," + childPosition + "] set checked to " + isChecked);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ChildDataItem extends ExpandableChild<DataModel> implements RatingB
         if(fromUser){
             model.setRating(rating);
             listener.getExpandableAdapter().notifyDataSetChanged();
-            listener.onMakeToast("Rating Bar[" + groupPosition + "][" + childPosition + "] set rating to " + rating );
+            //listener.onMakeToast("Rating Bar[" + groupPosition + "][" + childPosition + "] set rating to " + rating );
         }
     }
 }

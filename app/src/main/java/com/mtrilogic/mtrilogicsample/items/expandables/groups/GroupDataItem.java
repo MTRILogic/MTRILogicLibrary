@@ -29,11 +29,8 @@ public class GroupDataItem extends ExpandableGroup<DataModel> implements Compoun
     public void onBindItemView() {
         binding = ItemGroupBinding.bind(itemView);
         binding.chkItem.setOnCheckedChangeListener(this);
-        binding.chkItem.setFocusable(false);
         binding.btnAddData.setOnClickListener(v -> addNewModelable());
-        binding.btnAddData.setFocusable(false);
         binding.btnDelete.setOnClickListener(v -> autoDelete());
-        binding.btnDelete.setFocusable(false);
     }
 
     @NonNull
@@ -67,7 +64,7 @@ public class GroupDataItem extends ExpandableGroup<DataModel> implements Compoun
 
     private void addNewModelable(){
         DataModel model = new DataModel();
-        model.setChecked(model.isChecked());
+        model.setChecked(this.model.isChecked());
         addChild(model);
     }
 }
