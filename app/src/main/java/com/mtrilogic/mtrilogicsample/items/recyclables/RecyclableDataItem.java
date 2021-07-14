@@ -1,8 +1,6 @@
 package com.mtrilogic.mtrilogicsample.items.recyclables;
 
 import android.content.Context;
-import android.widget.CompoundButton;
-import android.widget.RatingBar;
 
 import androidx.annotation.NonNull;
 
@@ -15,7 +13,7 @@ import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 
 @SuppressWarnings({"unused","FieldCanBeLocal"})
-public class RecyclableDataItem extends Recyclable<DataModel> implements RatingBar.OnRatingBarChangeListener, CompoundButton.OnCheckedChangeListener {
+public class RecyclableDataItem extends Recyclable<DataModel> {
     private ItemDataBinding binding;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -29,8 +27,18 @@ public class RecyclableDataItem extends Recyclable<DataModel> implements RatingB
     @Override
     public void onBindItemView() {
         binding = ItemDataBinding.bind(itemView);
-        binding.ratingBar.setOnRatingBarChangeListener(this);
-        binding.chkItem.setOnCheckedChangeListener(this);
+        binding.ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
+            if(fromUser){
+                model.setRating(rating);
+                listener.getRecyclableAdapter().notifyItemChanged(position);
+                //listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
+            }
+        });
+        binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            model.setChecked(isChecked);
+            listener.getRecyclableAdapter().notifyItemChanged(position);
+            //listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
+        });
         binding.btnDelete.setOnClickListener(v -> autoDelete());
     }
 
@@ -49,21 +57,5 @@ public class RecyclableDataItem extends Recyclable<DataModel> implements RatingB
             binding.ratingBar.setRating(model.getRating());
             binding.chkItem.setChecked(model.isChecked());
         });
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        model.setChecked(isChecked);
-        listener.getRecyclableAdapter().notifyItemChanged(position);
-        //listener.onMakeToast("Item [" + position + "] set checked to " + isChecked);
-    }
-
-    @Override
-    public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-        if(fromUser){
-            model.setRating(rating);
-            listener.getRecyclableAdapter().notifyItemChanged(position);
-            //listener.onMakeToast("Rating Bar [" + position + "] set rating to " + rating );
-        }
     }
 }

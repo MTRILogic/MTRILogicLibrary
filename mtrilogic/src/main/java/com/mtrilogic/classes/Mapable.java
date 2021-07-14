@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.mtrilogic.abstracts.Modelable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -56,8 +57,20 @@ public final class Mapable<M extends Modelable>{
     }
 
     public final boolean appendGroup(@NonNull M group){
+        lastChildListable = null;
         if (groupListable.appendItem(group)){
             lastChildListable = childListableMap.put(group, new Listable<>());
+            return true;
+        }
+        return false;
+    }
+
+    public final boolean appendGroupList(ArrayList<M> groupList){
+        lastChildListable = null;
+        if (groupListable.appendItemList(groupList)){
+            for (M group : groupListable.getList()){
+                lastChildListable = childListableMap.put(group, new Listable<>());
+            }
             return true;
         }
         return false;
@@ -68,9 +81,26 @@ public final class Mapable<M extends Modelable>{
         return childListable != null && childListable.appendItem(child);
     }
 
+    public final boolean appendChildList(int groupPosition, @NonNull ArrayList<M> childList){
+        Listable<M> childListable = getChildListable(groupPosition);
+        return childListable != null && childListable.appendItemList(childList);
+    }
+
     public final boolean insertGroup(int groupPosition, @NonNull M group){
+        lastChildListable = null;
         if (groupListable.insertItem(groupPosition, group)){
             lastChildListable = childListableMap.put(group, new Listable<>());
+            return true;
+        }
+        return false;
+    }
+
+    public final boolean insertGroupList(int position, @NonNull ArrayList<M> groupList){
+        lastChildListable = null;
+        if (groupListable.insertItemList(position, groupList)){
+            for (M group : groupListable.getList()){
+                lastChildListable = childListableMap.put(group, new Listable<>());
+            }
             return true;
         }
         return false;
@@ -81,8 +111,17 @@ public final class Mapable<M extends Modelable>{
         return childListable != null && childListable.insertItem(childPosition, child);
     }
 
+    public final boolean insertChildList(int groupPosition, int childPosition, @NonNull ArrayList<M> childList){
+        Listable<M> childListable = getChildListable(groupPosition);
+        return childListable != null && childListable.insertItemList(childPosition, childList);
+    }
+
     public final M getGroup(int groupPosition){
         return groupListable.getItem(groupPosition);
+    }
+
+    public final ArrayList<M> getGroupList(){
+        return groupListable.getList();
     }
 
     public final M getChild(int groupPosition, int childPosition){
@@ -90,25 +129,52 @@ public final class Mapable<M extends Modelable>{
         return childListable != null ? childListable.getItem(childPosition) : null;
     }
 
-    public final M setGroup(int groupPosition, @NonNull M group){
-        M lastGroup = groupListable.setItem(groupPosition, group);
-        lastChildListable = childListableMap.remove(lastGroup);
-        childListableMap.put(group, lastChildListable);
-        return lastGroup;
+    public final ArrayList<M> getChildList(int groupPosition){
+        Listable<M> childListable = getChildListable(groupPosition);
+        return childListable != null ? childListable.getList() : null;
     }
 
-    public final M setChild(int groupPosition, int childPosition, @NonNull M child){
+    public final boolean setGroup(int groupPosition, @NonNull M group){
+        lastChildListable = null;
+        if (groupListable.setItem(groupPosition, group)){
+            M lastGroup = groupListable.getLastItem();
+            lastChildListable = childListableMap.remove(lastGroup);
+            lastChildListable = childListableMap.put(group, lastChildListable);
+            return true;
+        }
+        return false;
+    }
+
+    public final boolean setChild(int groupPosition, int childPosition, @NonNull M child){
         Listable<M> childListable = getChildListable(groupPosition);
-        return childListable != null ? childListable.setItem(childPosition, child) : null;
+        return childListable != null && childListable.setItem(childPosition, child);
     }
 
     public final boolean containsGroup(@NonNull M group){
         return groupListable.containsItem(group);
     }
 
+    public final boolean containsGroupList(@NonNull ArrayList<M> groupList){
+        return groupListable.containsItemList(groupList);
+    }
+
     public final boolean containsChild(int groupPosition, @NonNull M child){
         Listable<M> childListable = getChildListable(groupPosition);
         return childListable != null && childListable.containsItem(child);
+    }
+
+    public final boolean containsChildList(int groupPosition, @NonNull ArrayList<M> childList){
+        Listable<M> childListable = getChildListable(groupPosition);
+        return childListable != null && childListable.containsItemList(childList);
+    }
+
+    public final boolean retainGroupList(@NonNull ArrayList<M> groupList){
+        return groupListable.retainItemList(groupList);
+    }
+
+    public final boolean retainChildList(int groupPosition, @NonNull ArrayList<M> childList){
+        Listable<M> childListable = getChildListable(groupPosition);
+        return groupListable.retainItemList(childList);
     }
 
     public final int getGroupPosition(@NonNull M group){
@@ -121,6 +187,7 @@ public final class Mapable<M extends Modelable>{
     }
 
     public final boolean deleteGroup(@NonNull M group){
+        lastChildListable = null;
         if (groupListable.deleteItem(group)){
             lastChildListable = childListableMap.remove(group);
             return true;
@@ -128,9 +195,25 @@ public final class Mapable<M extends Modelable>{
         return false;
     }
 
+    public final boolean deleteGroupList(@NonNull ArrayList<M> childList){
+        lastChildListable = null;
+        if (groupListable.deleteItemList(childList)){
+            for (M group : groupListable.getList()){
+                lastChildListable = childListableMap.remove(group);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public final boolean deleteChild(int groupPosition, @NonNull M child){
         Listable<M> childListable = getChildListable(groupPosition);
         return childListable != null && childListable.deleteItem(child);
+    }
+
+    public final boolean deleteChildList(int groupPosition, @NonNull ArrayList<M> childList){
+        Listable<M> childListable = getChildListable(groupPosition);
+        return childListable != null && childListable.deleteItemList(childList);
     }
 
     public final int getGroupCount(){

@@ -1,8 +1,6 @@
 package com.mtrilogic.mtrilogicsample.items.expandables.childs;
 
 import android.content.Context;
-import android.widget.CompoundButton;
-import android.widget.RatingBar;
 
 import androidx.annotation.NonNull;
 
@@ -14,7 +12,7 @@ import com.mtrilogic.mtrilogicsample.databinding.ItemChildDataBinding;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 
 @SuppressWarnings({"unused","FieldCanBeLocal"})
-public class ChildDataItem extends ExpandableChild<DataModel> implements RatingBar.OnRatingBarChangeListener, CompoundButton.OnCheckedChangeListener {
+public class ChildDataItem extends ExpandableChild<DataModel> {
     private ItemChildDataBinding binding;
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -28,8 +26,18 @@ public class ChildDataItem extends ExpandableChild<DataModel> implements RatingB
     @Override
     public void onBindItemView() {
         binding = ItemChildDataBinding.bind(itemView);
-        binding.ratingBar.setOnRatingBarChangeListener(this);
-        binding.chkItem.setOnCheckedChangeListener(this);
+        binding.ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
+            if(fromUser){
+                model.setRating(rating);
+                listener.getExpandableAdapter().notifyDataSetChanged();
+                //listener.onMakeToast("Rating Bar[" + groupPosition + "][" + childPosition + "] set rating to " + rating );
+            }
+        });
+        binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            model.setChecked(isChecked);
+            listener.getExpandableAdapter().notifyDataSetChanged();
+            //listener.onMakeToast("Item [" + groupPosition + "," + childPosition + "] set checked to " + isChecked);
+        });
         binding.btnDelete.setOnClickListener(v -> autoDelete());
     }
 
@@ -46,21 +54,5 @@ public class ChildDataItem extends ExpandableChild<DataModel> implements RatingB
         binding.lblContent.setText(context.getString(R.string.content_item, childPosition));
         binding.ratingBar.setRating(model.getRating());
         binding.chkItem.setChecked(model.isChecked());
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        model.setChecked(isChecked);
-        listener.getExpandableAdapter().notifyDataSetChanged();
-        //listener.onMakeToast("Item [" + groupPosition + "," + childPosition + "] set checked to " + isChecked);
-    }
-
-    @Override
-    public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-        if(fromUser){
-            model.setRating(rating);
-            listener.getExpandableAdapter().notifyDataSetChanged();
-            //listener.onMakeToast("Rating Bar[" + groupPosition + "][" + childPosition + "] set rating to " + rating );
-        }
     }
 }
