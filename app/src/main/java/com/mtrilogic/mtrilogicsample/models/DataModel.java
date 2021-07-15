@@ -1,6 +1,7 @@
 package com.mtrilogic.mtrilogicsample.models;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.abstracts.ModelableCreator;
@@ -75,7 +76,7 @@ public class DataModel extends Modelable{
     // ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++
 
     @Override
-    protected void onRestoreFromData(Bundle data) {
+    protected void onRestoreFromData(@NonNull Bundle data) {
         super.onRestoreFromData(data);
         title = data.getString(TITLE);
         content = data.getString(CONTENT);
@@ -84,7 +85,7 @@ public class DataModel extends Modelable{
     }
 
     @Override
-    protected void onSaveToData(Bundle data) {
+    protected void onSaveToData(@NonNull Bundle data) {
         super.onSaveToData(data);
         data.putString(TITLE, title);
         data.putString(CONTENT, content);

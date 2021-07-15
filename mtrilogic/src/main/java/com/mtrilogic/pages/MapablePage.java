@@ -2,6 +2,8 @@ package com.mtrilogic.pages;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 import com.mtrilogic.abstracts.Modelable;
 import com.mtrilogic.abstracts.Paginable;
 import com.mtrilogic.abstracts.PaginableCreator;
@@ -51,13 +53,13 @@ public class MapablePage extends Paginable {
     // =============================================================================================
 
     @Override
-    protected void onRestoreFromData(Bundle data) {
+    protected void onRestoreFromData(@NonNull Bundle data) {
         super.onRestoreFromData(data);
         modelableMapable = new Mapable<>(data);
     }
 
     @Override
-    protected void onSaveToData(Bundle data) {
+    protected void onSaveToData(@NonNull Bundle data) {
         super.onSaveToData(data);
         modelableMapable.saveToData(data);
     }

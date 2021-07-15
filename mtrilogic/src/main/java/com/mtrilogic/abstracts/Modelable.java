@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 @SuppressWarnings({"unused"})
 public abstract class Modelable implements Parcelable {
     private static final String ITEM_ID = "itemId", VIEW_TYPE = "viewType", ENABLED = "enabled";
@@ -24,7 +26,9 @@ public abstract class Modelable implements Parcelable {
 // ++++++++++++++++| PROTECTED CONSTRUCTORS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     protected Modelable(Bundle data){
-        onRestoreFromData(data);
+        if (data != null) {
+            onRestoreFromData(data);
+        }
     }
 
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -69,13 +73,13 @@ public abstract class Modelable implements Parcelable {
 
     // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    protected void onRestoreFromData(Bundle data){
+    protected void onRestoreFromData(@NonNull Bundle data){
         itemId = data.getLong(ITEM_ID);
         viewType = data.getInt(VIEW_TYPE);
         enabled = data.getBoolean(ENABLED);
     }
 
-    protected void onSaveToData(Bundle data){
+    protected void onSaveToData(@NonNull Bundle data){
         data.putLong(ITEM_ID, itemId);
         data.putInt(VIEW_TYPE, viewType);
         data.putBoolean(ENABLED, enabled);
