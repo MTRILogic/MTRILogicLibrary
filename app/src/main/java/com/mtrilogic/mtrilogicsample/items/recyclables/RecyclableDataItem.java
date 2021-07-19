@@ -1,6 +1,8 @@
 package com.mtrilogic.mtrilogicsample.items.recyclables;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -18,8 +20,8 @@ public class RecyclableDataItem extends Recyclable<DataModel> {
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public RecyclableDataItem(@NonNull ItemDataBinding binding, @NonNull RecyclableItemListener listener){
-        super(binding.getRoot(), listener);
+    public RecyclableDataItem(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, @NonNull RecyclableItemListener listener){
+        super(ItemDataBinding.inflate(inflater, parent, false).getRoot(), listener);
     }
 
 // ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++

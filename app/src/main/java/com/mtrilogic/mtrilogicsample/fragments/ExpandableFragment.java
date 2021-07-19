@@ -18,8 +18,6 @@ import com.mtrilogic.classes.Mapable;
 import com.mtrilogic.interfaces.ExpandableItemListener;
 import com.mtrilogic.interfaces.ExpandableListener;
 import com.mtrilogic.mtrilogicsample.databinding.FragmentExpandableBinding;
-import com.mtrilogic.mtrilogicsample.databinding.ItemChildDataBinding;
-import com.mtrilogic.mtrilogicsample.databinding.ItemGroupBinding;
 import com.mtrilogic.mtrilogicsample.items.expandables.childs.ChildDataItem;
 import com.mtrilogic.mtrilogicsample.items.expandables.groups.GroupDataItem;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
@@ -58,11 +56,13 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
             return true;
         });
         binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Modelable modelable : page.getModelableMapable().getGroupListable().getList()){
-                DataModel model = (DataModel) modelable;
-                model.setChecked(binding.chkItem.isChecked());
+            if (buttonView.isPressed()){
+                for (Modelable modelable : page.getModelableMapable().getGroupListable().getList()){
+                    DataModel model = (DataModel) modelable;
+                    model.setChecked(binding.chkItem.isChecked());
+                }
+                adapter.notifyDataSetChanged();
             }
-            adapter.notifyDataSetChanged();
         });
         binding.lblTitle.setText(getString(R.string.title_item, page.getItemId()));
         binding.btnAddGroup.setOnClickListener(v -> addGroupModelable());
@@ -79,11 +79,6 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
     @Override
     protected void onNewPosition() {
         binding.lblContent.setText(getString(R.string.content_item, position));
-    }
-
-    @Override
-    protected void onNewPage() {
-        // nothing for now
     }
 
     // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -115,7 +110,7 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
     @Override
     public ExpandableGroup<? extends Modelable> getExpandableGroup(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent){
         if (viewType == GroupType.GROUP) {
-            return new GroupDataItem(ItemGroupBinding.inflate(inflater, parent, false), this);
+            return new GroupDataItem(inflater, parent, this);
         }
         return null;
     }
@@ -124,7 +119,7 @@ public class ExpandableFragment extends Fragmentable<ExpandablePage> implements 
     public ExpandableChild<? extends Modelable> getExpandableChild(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent){
         Context context = getContext();
         if (viewType == ChildType.DATA) {
-            return new ChildDataItem(ItemChildDataBinding.inflate(inflater, parent, false), this);
+            return new ChildDataItem(inflater, parent, this);
         }
         return null;
     }

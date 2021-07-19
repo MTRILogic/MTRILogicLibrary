@@ -10,19 +10,7 @@ import com.mtrilogic.abstracts.PaginableCreator;
 import com.mtrilogic.classes.Mapable;
 
 @SuppressWarnings("unused")
-public class MapablePage extends Paginable {
-    public static final Creator<MapablePage> CREATOR = new PaginableCreator<MapablePage>() {
-        @Override
-        protected MapablePage createFromData(Bundle data) {
-            return new MapablePage(data);
-        }
-
-        @Override
-        public MapablePage[] newArray(int size) {
-            return new MapablePage[size];
-        }
-    };
-
+public class MapablePage extends Page {
     private Mapable<Modelable> modelableMapable;
 
     // =============================================================================================

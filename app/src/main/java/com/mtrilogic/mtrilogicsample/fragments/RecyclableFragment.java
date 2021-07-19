@@ -20,7 +20,6 @@ import com.mtrilogic.interfaces.RecyclableItemListener;
 import com.mtrilogic.interfaces.RecyclableListener;
 import com.mtrilogic.mtrilogicsample.R;
 import com.mtrilogic.mtrilogicsample.databinding.FragmentRecyclableBinding;
-import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
 import com.mtrilogic.mtrilogicsample.items.recyclables.RecyclableDataItem;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 import com.mtrilogic.mtrilogicsample.pages.RecyclablePage;
@@ -45,11 +44,13 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
         binding.btnAddData.setOnClickListener(v -> addModelable());
         binding.btnDelete.setOnClickListener(v -> autoDelete());
         binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Modelable modelable : page.getModelableListable().getList()){
-                DataModel model = (DataModel) modelable;
-                model.setChecked(binding.chkItem.isChecked());
+            if (buttonView.isPressed()){
+                for (Modelable modelable : page.getModelableListable().getList()){
+                    DataModel model = (DataModel) modelable;
+                    model.setChecked(binding.chkItem.isChecked());
+                }
+                adapter.notifyDataSetChanged();
             }
-            adapter.notifyDataSetChanged();
         });
         return binding.getRoot();
     }
@@ -57,11 +58,6 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
     @Override
     protected void onNewPosition() {
         binding.lblContent.setText(getString(R.string.content_item, position));
-    }
-
-    @Override
-    protected void onNewPage() {
-        // nothing for now
     }
 
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -76,7 +72,7 @@ public class RecyclableFragment extends Fragmentable<RecyclablePage> implements 
     public Recyclable<? extends Modelable> getRecyclable(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent){
         Context context = getContext();
         if (viewType == ChildType.DATA) {
-            return new RecyclableDataItem(ItemDataBinding.inflate(inflater, parent, false), this);
+            return new RecyclableDataItem(inflater, parent, this);
         }
         return null;
     }

@@ -1,6 +1,8 @@
 package com.mtrilogic.mtrilogicsample.items.inflatables;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -17,8 +19,8 @@ public class InflatableDataItem extends Inflatable<DataModel> {
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public InflatableDataItem(@NonNull ItemDataBinding binding, @NonNull InflatableItemListener listener){
-        super((binding.getRoot()), listener);
+    public InflatableDataItem(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, @NonNull InflatableItemListener listener){
+        super(ItemDataBinding.inflate(inflater, parent, false).getRoot(), listener);
     }
 
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1,6 +1,8 @@
 package com.mtrilogic.mtrilogicsample.items.expandables.childs;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -17,8 +19,8 @@ public class ChildDataItem extends ExpandableChild<DataModel> {
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public ChildDataItem(@NonNull ItemChildDataBinding binding, @NonNull ExpandableItemListener listener){
-        super(binding.getRoot(), listener);
+    public ChildDataItem(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, @NonNull ExpandableItemListener listener){
+        super(ItemChildDataBinding.inflate(inflater, parent, false).getRoot(), listener);
     }
 
 // ++++++++++++++++| PROTECTED OVERRIDE METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++

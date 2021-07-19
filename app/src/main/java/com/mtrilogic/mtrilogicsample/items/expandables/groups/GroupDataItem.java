@@ -1,6 +1,8 @@
 package com.mtrilogic.mtrilogicsample.items.expandables.groups;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -19,8 +21,8 @@ public class GroupDataItem extends ExpandableGroup<DataModel> {
 
 // ++++++++++++++++| PUBLIC CONSTRUCTORS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public GroupDataItem(@NonNull ItemGroupBinding binding, @NonNull ExpandableItemListener listener){
-        super(binding.getRoot(), listener);
+    public GroupDataItem(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, @NonNull ExpandableItemListener listener){
+        super(ItemGroupBinding.inflate(inflater, parent, false).getRoot(), listener);
     }
 
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -29,15 +31,17 @@ public class GroupDataItem extends ExpandableGroup<DataModel> {
     public void onBindItemView() {
         binding = ItemGroupBinding.bind(itemView);
         binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            model.setChecked(isChecked);
-            ArrayList<Modelable> childList = listener.getModelableMapable().getChildList(groupPosition);
-            if (childList != null) {
-                for (Modelable modelable : childList){
-                    DataModel model = (DataModel) modelable;
-                    model.setChecked(isChecked);
+            if (buttonView.isPressed()){
+                model.setChecked(isChecked);
+                ArrayList<Modelable> childList = listener.getModelableMapable().getChildList(groupPosition);
+                if (childList != null) {
+                    for (Modelable modelable : childList){
+                        DataModel model = (DataModel) modelable;
+                        model.setChecked(isChecked);
+                    }
                 }
+                listener.getExpandableAdapter().notifyDataSetChanged();
             }
-            listener.getExpandableAdapter().notifyDataSetChanged();
         });
 
         binding.btnAddData.setOnClickListener(v -> addNewModelable());

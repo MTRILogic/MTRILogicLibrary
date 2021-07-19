@@ -25,8 +25,6 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
 
     @NonNull
     protected abstract View onCreateViewFragment(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
-    protected abstract void onNewPosition();
-    protected abstract void onNewPage();
 
 // ++++++++++++++++| PUBLIC STATIC METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -107,7 +105,7 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
         }
     }
 
-    // ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++| PUBLIC METHODS |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     public final void setPage(P page) {
         this.page = page;
@@ -127,7 +125,15 @@ public abstract class Fragmentable<P extends Paginable> extends Fragment impleme
         return position;
     }
 
-    // ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++| PROTECTED METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    protected void onNewPosition(){
+
+    }
+
+    protected void onNewPage(){
+
+    }
 
     protected final void autoDelete(){
         if (listener != null && listener.getPaginableListable().deleteItem(page)) {

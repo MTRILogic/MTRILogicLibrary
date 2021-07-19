@@ -5,24 +5,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import com.mtrilogic.abstracts.Modelable;
-import com.mtrilogic.abstracts.Paginable;
-import com.mtrilogic.abstracts.PaginableCreator;
 import com.mtrilogic.classes.Listable;
 
 @SuppressWarnings("unused")
-public class ListablePage extends Paginable {
-    public static final Creator<ListablePage> CREATOR = new PaginableCreator<ListablePage>() {
-        @Override
-        protected ListablePage createFromData(Bundle data) {
-            return new ListablePage(data);
-        }
-
-        @Override
-        public ListablePage[] newArray(int size) {
-            return new ListablePage[size];
-        }
-    };
-
+public class ListablePage extends Page {
     private Listable<Modelable> modelableListable;
 
     // =============================================================================================

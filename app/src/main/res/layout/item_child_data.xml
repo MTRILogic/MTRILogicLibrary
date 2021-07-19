@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="#00FF00"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="?android:attr/expandableListPreferredChildPaddingLeft"
+    android:descendantFocusability="blocksDescendants"
     android:padding="5dp">
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="50dp"
         android:layout_height="match_parent"
         android:gravity="center">
 
-        <CheckBox
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/chkItem"
             android:background="#FFFFFF"
             android:button="@drawable/checkbox_background"
@@ -21,18 +21,19 @@
             android:scaleY="1.5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:focusableInTouchMode="true"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center_vertical">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/lblTitle"
             android:text="@string/title_sample"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -42,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/lblContent"
             android:text="@string/content_sample"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -50,16 +51,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:gravity="center"
         android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <RatingBar
+        <androidx.appcompat.widget.AppCompatRatingBar
             style="?android:attr/ratingBarStyleSmall"
             android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
@@ -71,14 +72,14 @@
             android:stepSize="1"
             android:isIndicator="false"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <ImageButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btnDelete"
         android:src="@android:drawable/ic_menu_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:focusable="false"
-        tools:ignore="ContentDescription"/>
+        android:focusableInTouchMode="true"
+        android:contentDescription="@string/delete"/>
 
-</LinearLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>

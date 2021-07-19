@@ -18,7 +18,6 @@ import com.mtrilogic.interfaces.InflatableItemListener;
 import com.mtrilogic.interfaces.InflatableListener;
 import com.mtrilogic.mtrilogicsample.R;
 import com.mtrilogic.mtrilogicsample.databinding.FragmentInflatableBinding;
-import com.mtrilogic.mtrilogicsample.databinding.ItemDataBinding;
 import com.mtrilogic.mtrilogicsample.items.inflatables.InflatableDataItem;
 import com.mtrilogic.mtrilogicsample.models.DataModel;
 import com.mtrilogic.mtrilogicsample.pages.InflatablePage;
@@ -43,11 +42,13 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
         binding.btnAddData.setOnClickListener(v -> addModelable());
         binding.btnDelete.setOnClickListener(v -> autoDelete());
         binding.chkItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Modelable modelable : page.getModelableListable().getList()){
-                DataModel model = (DataModel) modelable;
-                model.setChecked(binding.chkItem.isChecked());
+            if (buttonView.isPressed()){
+                for (Modelable modelable : page.getModelableListable().getList()){
+                    DataModel model = (DataModel) modelable;
+                    model.setChecked(binding.chkItem.isChecked());
+                }
+                adapter.notifyDataSetChanged();
             }
-            adapter.notifyDataSetChanged();
         });
         return binding.getRoot();
     }
@@ -55,11 +56,6 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
     @Override
     protected void onNewPosition() {
         binding.lblContent.setText(getString(R.string.content_item, position));
-    }
-
-    @Override
-    protected void onNewPage() {
-        // nothing for now
     }
 
 // ++++++++++++++++| PUBLIC OVERRIDE METHODS |++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -92,7 +88,7 @@ public class InflatableFragment extends Fragmentable<InflatablePage> implements 
     public Inflatable<? extends Modelable> getInflatable(int viewType, @NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
         Context context = getContext();
         if (viewType == ChildType.DATA) {
-            return new InflatableDataItem(ItemDataBinding.inflate(inflater, parent, false), this);
+            return new InflatableDataItem(inflater, parent, this);
         }
         return null;
     }
